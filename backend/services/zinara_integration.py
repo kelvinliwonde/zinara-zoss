@@ -6,7 +6,11 @@
 import random
 import json
 from datetime import datetime, timedelta
-from models import db, Vehicle, RadioLicense, RenewalApplication, Payment
+import time
+import hashlib
+
+# FIXED: Changed from 'from models import...' to 'from backend.models import...'
+from backend.models import db, Vehicle, RadioLicense, RenewalApplication, Payment
 
 class ZINARAIntegration:
     """Simulates ZINARA's real backend integration"""
@@ -27,7 +31,6 @@ class ZINARAIntegration:
         Returns: dict with status, make, model, year
         """
         # Simulate API call delay
-        import time
         time.sleep(0.5)  # Simulate network latency
         
         vehicle = ZINARAIntegration.ZINARA_VEHICLE_DB.get(registration_number.upper())
@@ -66,7 +69,6 @@ class ZINARAIntegration:
         Check radio license status with ZBC (Zimbabwe Broadcasting Corporation)
         Returns: dict with status
         """
-        import time
         time.sleep(0.3)  # Simulate API call
         
         # Simulate ZBC database check
@@ -90,7 +92,6 @@ class ZINARAIntegration:
         Submit renewal application to ZINARA's backend
         Returns: dict with reference number and status
         """
-        import time
         time.sleep(1.0)  # Simulate processing time
         
         # Generate ZINARA reference number
@@ -114,7 +115,6 @@ class ZINARAIntegration:
         Check the status of a submitted application with ZINARA
         Returns: dict with current status
         """
-        import time
         time.sleep(0.4)
         
         # Simulate different statuses
@@ -138,7 +138,6 @@ class ZINARAIntegration:
         Simulate payment processing through ZINARA's payment gateway
         Returns: dict with payment confirmation
         """
-        import time
         time.sleep(0.8)
         
         # Generate payment reference
@@ -164,8 +163,6 @@ class ZINARAIntegration:
         Generate a digital license from ZINARA
         Returns: dict with license details and QR code data
         """
-        import time
-        import hashlib
         time.sleep(0.6)
         
         # Generate unique license number

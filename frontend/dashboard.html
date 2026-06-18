@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ZINARA ZOSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <div class="logo-icon"><i class="fas fa-road"></i></div>
+            <div class="logo-text">ZINARA <span>ZOSS</span></div>
+        </a>
+
+        <div class="nav-label">Main</div>
+        <a href="dashboard.html" class="active">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+        <a href="renew.html">
+            <i class="fas fa-plus-circle"></i> Renew License
+        </a>
+
+        <div class="nav-label" id="adminLabel" style="display:none;">Admin</div>
+        <a href="integration.html" id="integrationLink" style="display:none;">
+            <i class="fas fa-plug"></i> Integration
+        </a>
+        <a href="admin/index.html" id="adminLink" style="display:none;">
+            <i class="fas fa-user-shield"></i> Admin Panel
+        </a>
+
+        <div class="bottom">
+            <div class="user-mini">
+                <div class="avatar" id="userAvatar">AM</div>
+                <div>
+                    <div class="name" id="userNameShort">Anesu Mhaka</div>
+                    <div class="role" id="userRole">Citizen</div>
+                </div>
+            </div>
+            <a href="#" onclick="handleLogout()" style="margin-top: 8px; color: var(--text-tertiary);">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="page-title">
+                <h1>Dashboard</h1>
+                <p>Manage your licenses and renewals</p>
+            </div>
+            <div class="actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <a href="renew.html" class="btn-primary">
+                    <i class="fas fa-plus"></i> New Renewal
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="left">
+                    <div class="number" id="statVehicles">0</div>
+                    <div class="label">Registered Vehicles</div>
+                </div>
+                <div class="right">
+                    <div class="icon blue"><i class="fas fa-car"></i></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="left">
+                    <div class="number" id="statActive">0</div>
+                    <div class="label">Active Licenses</div>
+                </div>
+                <div class="right">
+                    <div class="icon green"><i class="fas fa-check-circle"></i></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="left">
+                    <div class="number" id="statPending">0</div>
+                    <div class="label">Pending Renewals</div>
+                </div>
+                <div class="right">
+                    <div class="icon gold"><i class="fas fa-clock"></i></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="left">
+                    <div class="number"><span class="currency">$</span><span id="statSpent">0.00</span></div>
+                    <div class="label">Total Spent</div>
+                </div>
+                <div class="right">
+                    <div class="icon purple"><i class="fas fa-coins"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div class="greeting">
+                <h2>Welcome back, <span id="userName">Anesu Mhaka</span> 👋</h2>
+                <p id="userEmail"><i class="fas fa-envelope" style="margin-right:6px;opacity:0.4;"></i>anesu.mhaka1@gmail.com</p>
+            </div>
+            <div class="mini-stats">
+                <div class="item">
+                    <span class="dot blue"></span>
+                    <span class="num" id="miniVehicles">0</span>
+                    <span class="lbl">Vehicles</span>
+                </div>
+                <div class="item">
+                    <span class="dot green"></span>
+                    <span class="num" id="miniRadio">0</span>
+                    <span class="lbl">Radio Licenses</span>
+                </div>
+                <div class="item">
+                    <span class="dot gold"></span>
+                    <span class="num" id="miniApps">0</span>
+                    <span class="lbl">Applications</span>
+                </div>
+                <div class="item">
+                    <span class="dot purple"></span>
+                    <span class="num" id="miniSpent">$0</span>
+                    <span class="lbl">Total Spent</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-bottom: 1.5rem;">
+            <a href="renew.html" style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius); padding:0.8rem 1rem; text-decoration:none; color:white; display:flex; align-items:center; gap:12px; transition:var(--transition);">
+                <div style="width:36px;height:36px;background:var(--gold-glow);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--gold);">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div>
+                    <div style="font-weight:600;font-size:0.85rem;">Renew License</div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);">Submit a new application</div>
+                </div>
+                <i class="fas fa-arrow-right" style="margin-left:auto;color:var(--text-tertiary);"></i>
+            </a>
+            <div style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius); padding:0.8rem 1rem; display:flex; align-items:center; gap:12px; opacity:0.6;">
+                <div style="width:36px;height:36px;background:var(--blue-glow);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--blue);">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div>
+                    <div style="font-weight:600;font-size:0.85rem;">Pay Renewal</div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);">Complete pending payments</div>
+                </div>
+                <span style="margin-left:auto;font-size:0.6rem;color:var(--text-tertiary);">Coming soon</span>
+            </div>
+            <div style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius); padding:0.8rem 1rem; display:flex; align-items:center; gap:12px; opacity:0.6;">
+                <div style="width:36px;height:36px;background:var(--purple-glow);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--purple);">
+                    <i class="fas fa-download"></i>
+                </div>
+                <div>
+                    <div style="font-weight:600;font-size:0.85rem;">Digital License</div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);">Download your license</div>
+                </div>
+                <span style="margin-left:auto;font-size:0.6rem;color:var(--text-tertiary);">Coming soon</span>
+            </div>
+        </div>
+
+        <!-- Two Column -->
+        <div class="two-col">
+            <!-- Chart -->
+            <div class="section-card">
+                <div class="header">
+                    <h4><i class="fas fa-chart-line" style="color: var(--gold);"></i> Spending Trends</h4>
+                    <span style="font-size:0.65rem;color:var(--text-tertiary);">Last 6 months</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="spendingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Pending Applications -->
+            <div class="section-card">
+                <div class="header">
+                    <h4><i class="fas fa-clock" style="color: var(--gold);"></i> Pending Actions</h4>
+                    <a href="renew.html" class="action">View all →</a>
+                </div>
+                <div id="pendingApplications">
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle" style="color:var(--green);"></i>
+                        <p>All caught up! No pending actions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehicles -->
+        <div style="margin-top: 1.2rem;">
+            <div class="section-card">
+                <div class="header">
+                    <h4><i class="fas fa-car" style="color: var(--blue);"></i> Your Vehicles</h4>
+                    <span style="font-size:0.65rem;color:var(--text-tertiary);" id="vehicleCountLabel">0 registered</span>
+                </div>
+                <div id="vehiclesList">
+                    <div class="empty-state">
+                        <i class="fas fa-car"></i>
+                        <p>No vehicles registered yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

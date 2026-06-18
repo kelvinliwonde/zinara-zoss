@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Applications - ZINARA ZOSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-blue-900 text-white shadow-lg fixed w-full z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-road text-2xl"></i>
+                <span class="text-xl font-bold">ZINARA ZOSS</span>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="../dashboard.html" class="hover:text-blue-200 transition">Dashboard</a>
+                <a href="index.html" class="hover:text-blue-200 transition">Admin</a>
+                <a href="applications.html" class="text-yellow-300 font-semibold">Applications</a>
+                <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition text-sm">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-20 container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Review Applications</h1>
+
+        <div class="bg-white p-4 rounded-xl shadow-md mb-6">
+            <div class="flex flex-wrap gap-4">
+                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>All Status</option>
+                    <option>Pending</option>
+                    <option>Verified</option>
+                    <option>Paid</option>
+                    <option>Completed</option>
+                    <option>Rejected</option>
+                </select>
+                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>All Types</option>
+                    <option>Vehicle</option>
+                    <option>Radio</option>
+                    <option>Both</option>
+                </select>
+                <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Apply Filter</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4">#001</td>
+                            <td class="px-6 py-4">Anesu Mhaka</td>
+                            <td class="px-6 py-4 capitalize">Vehicle</td>
+                            <td class="px-6 py-4">$50.00</td>
+                            <td class="px-6 py-4"><span class="status-pending">Pending</span></td>
+                            <td class="px-6 py-4">2026-06-18</td>
+                            <td class="px-6 py-4">
+                                <button class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm mr-1">Approve</button>
+                                <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">Reject</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

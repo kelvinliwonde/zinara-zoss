@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - ZINARA ZOSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="bg-gray-50">
+    <nav class="navbar">
+        <a href="../index.html" class="navbar-brand">
+            <i class="fas fa-road"></i>
+            <span>ZINARA ZOSS</span>
+        </a>
+        <div class="navbar-links">
+            <a href="../dashboard.html"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="../renew.html"><i class="fas fa-plus-circle"></i> Renew</a>
+            <a href="../integration.html"><i class="fas fa-plug"></i> Integration</a>
+            <a href="index.html" class="active"><i class="fas fa-user-shield"></i> Admin</a>
+            <button onclick="handleLogout()" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <div class="main-content" style="margin-left: 0; padding-top: 92px;">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-600">
+                <p class="text-sm text-gray-500">Total Users</p>
+                <p class="text-2xl font-bold" id="totalUsers">100</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-600">
+                <p class="text-sm text-gray-500">Total Applications</p>
+                <p class="text-2xl font-bold" id="totalApplications">200</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-yellow-600">
+                <p class="text-sm text-gray-500">Pending Approvals</p>
+                <p class="text-2xl font-bold" id="pendingApprovals">45</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-600">
+                <p class="text-sm text-gray-500">Total Revenue</p>
+                <p class="text-2xl font-bold" id="totalRevenue">$12,450</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <button onclick="window.location.href='users.html'" class="bg-blue-600 text-white p-6 rounded-xl hover:bg-blue-700 transition text-center">
+                <i class="fas fa-users text-3xl mb-2"></i>
+                <p class="font-semibold">Manage Users</p>
+            </button>
+            <button onclick="window.location.href='applications.html'" class="bg-green-600 text-white p-6 rounded-xl hover:bg-green-700 transition text-center">
+                <i class="fas fa-file-alt text-3xl mb-2"></i>
+                <p class="font-semibold">Review Applications</p>
+            </button>
+            <button onclick="window.location.href='reports.html'" class="bg-purple-600 text-white p-6 rounded-xl hover:bg-purple-700 transition text-center">
+                <i class="fas fa-chart-bar text-3xl mb-2"></i>
+                <p class="font-semibold">Generate Reports</p>
+            </button>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div>
+                        <p class="font-medium">John Doe applied for renewal</p>
+                        <p class="text-sm text-gray-500">Vehicle license • 2 hours ago</p>
+                    </div>
+                    <span class="badge-pending">Pending</span>
+                </div>
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div>
+                        <p class="font-medium">Jane Smith completed payment</p>
+                        <p class="text-sm text-gray-500">Radio license • 4 hours ago</p>
+                    </div>
+                    <span class="badge-completed">Completed</span>
+                </div>
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div>
+                        <p class="font-medium">New user registered: Tendai Moyo</p>
+                        <p class="text-sm text-gray-500">Account created • 5 hours ago</p>
+                    </div>
+                    <span class="badge-verified">Verified</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZINARA Integration - Admin Only</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: linear-gradient(135deg, #f0f4f8, #e2e8f0); min-height: 100vh;">
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <i class="fas fa-road"></i>
+            <span>ZINARA ZOSS</span>
+        </a>
+        <div class="navbar-links">
+            <a href="dashboard.html"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="renew.html"><i class="fas fa-plus-circle"></i> Renew</a>
+            <a href="integration.html" class="active" id="integrationLink">
+                <i class="fas fa-plug"></i> Integration
+            </a>
+            <a href="admin/index.html" id="adminLink">
+                <i class="fas fa-user-shield"></i> Admin
+            </a>
+            <button onclick="handleLogout()" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <div class="main-content" style="max-width: 900px; margin: 0 auto; padding-top: 100px;">
+        <!-- Admin Only Warning -->
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 12px; padding: 12px 20px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-lock" style="color: #f59e0b; font-size: 1.2rem;"></i>
+            <span style="color: #92400e; font-weight: 500;">Admin Only: This page shows the backend integration with ZINARA.</span>
+        </div>
+
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0.25rem;">
+            <i class="fas fa-plug" style="color: #fbbf24; margin-right: 12px;"></i>ZINARA Integration Status
+        </h1>
+        <p style="color: #94a3b8; margin-bottom: 2rem;">Real-time connection to ZINARA's backend systems (Admin Monitoring)</p>
+
+        <!-- System Status -->
+        <div class="section-card animate-in">
+            <div class="header">
+                <h3><i class="fas fa-server" style="color: #3b82f6; margin-right: 10px;"></i>System Status</h3>
+                <button onclick="refreshStatus()" class="btn-secondary">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+            <div id="systemStatus">
+                <p style="color: #94a3b8; text-align: center; padding: 1rem 0;">Loading system status...</p>
+            </div>
+        </div>
+
+        <!-- Connection Status -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="section-card animate-in">
+                <div class="header">
+                    <h3><i class="fas fa-car" style="color: #3b82f6; margin-right: 10px;"></i>Vehicle Verification</h3>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>Enter Registration Number</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input id="verifyVehicleInput" type="text" class="form-control" placeholder="ABC 1234" style="flex: 1;">
+                            <button onclick="verifyVehicle()" class="btn-primary">Verify</button>
+                        </div>
+                    </div>
+                    <div id="vehicleVerificationResult"></div>
+                </div>
+            </div>
+
+            <div class="section-card animate-in">
+                <div class="header">
+                    <h3><i class="fas fa-radio" style="color: #34d399; margin-right: 10px;"></i>Radio License Verification</h3>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>Enter Radio Serial Number</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input id="verifyRadioInput" type="text" class="form-control" placeholder="RADIO-123456" style="flex: 1;">
+                            <button onclick="verifyRadio()" class="btn-primary">Verify</button>
+                        </div>
+                    </div>
+                    <div id="radioVerificationResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Application to ZINARA -->
+        <div class="section-card animate-in">
+            <div class="header">
+                <h3><i class="fas fa-paper-plane" style="color: #a78bfa; margin-right: 10px;"></i>Submit to ZINARA</h3>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>Application ID</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="submitAppId" type="number" class="form-control" placeholder="Enter application ID" style="flex: 1;">
+                        <button onclick="submitToZinara()" class="btn-primary gold">
+                            <i class="fas fa-paper-plane"></i> Submit
+                        </button>
+                    </div>
+                </div>
+                <div id="submitResult"></div>
+            </div>
+        </div>
+
+        <!-- Process Payment -->
+        <div class="section-card animate-in">
+            <div class="header">
+                <h3><i class="fas fa-dollar-sign" style="color: #fbbf24; margin-right: 10px;"></i>Process Payment</h3>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>Application ID</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="paymentAppId" type="number" class="form-control" placeholder="Enter application ID" style="flex: 1;">
+                        <select id="paymentMethod" class="form-control" style="width: 150px;">
+                            <option value="ecocash">EcoCash</option>
+                            <option value="telecash">TeleCash</option>
+                            <option value="onecard">OneCard</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                        <button onclick="processPayment()" class="btn-primary">
+                            <i class="fas fa-credit-card"></i> Pay
+                        </button>
+                    </div>
+                </div>
+                <div id="paymentResult"></div>
+            </div>
+        </div>
+
+        <!-- Integration Log -->
+        <div class="section-card animate-in">
+            <div class="header">
+                <h3><i class="fas fa-history" style="color: #64748b; margin-right: 10px;"></i>Integration Log</h3>
+                <button onclick="clearLog()" class="btn-secondary">Clear</button>
+            </div>
+            <div id="integrationLog" style="background: #f8fafc; border-radius: 8px; padding: 1rem; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: #1e293b;">
+                <p style="color: #94a3b8; text-align: center;">Waiting for integration events...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/integration.js"></script>
+</body>
+</html>

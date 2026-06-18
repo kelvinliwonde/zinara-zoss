@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ZINARA ZOSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #1e3a8a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 1.5rem;">
+    <div style="width: 100%; max-width: 420px;">
+        <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 2.5rem 2rem; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 40px 80px rgba(0,0,0,0.5);">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.04); padding: 8px 20px; border-radius: 16px;">
+                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-road" style="color: #0f172a; font-size: 1.2rem;"></i>
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.2rem; color: white; letter-spacing: -0.5px;">ZINARA <span style="color: #fbbf24;">ZOSS</span></span>
+                </div>
+                <h2 style="color: white; font-size: 1.6rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.25rem;">Welcome Back</h2>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.9rem;">Sign in to renew your licenses</p>
+            </div>
+            
+            <form id="loginForm">
+                <div style="margin-bottom: 1rem;">
+                    <label style="color: rgba(255,255,255,0.6); font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 6px;">Email Address</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.2);"></i>
+                        <input id="email" type="email" required value="anesu.mhaka1@gmail.com"
+                               style="width: 100%; padding: 13px 16px 13px 46px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: white; font-size: 0.95rem; transition: all 0.3s ease; outline: none; font-family: inherit;">
+                        <style>
+                            #email:focus, #password:focus {
+                                border-color: #fbbf24;
+                                box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
+                            }
+                            #email::placeholder, #password::placeholder {
+                                color: rgba(255,255,255,0.2);
+                            }
+                        </style>
+                    </div>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="color: rgba(255,255,255,0.6); font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 6px;">Password</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.2);"></i>
+                        <input id="password" type="password" required value="Password123"
+                               style="width: 100%; padding: 13px 16px 13px 46px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: white; font-size: 0.95rem; transition: all 0.3s ease; outline: none; font-family: inherit;">
+                    </div>
+                </div>
+                <button type="submit" id="loginBtn"
+                        style="width: 100%; padding: 14px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 12px; color: #0f172a; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <div style="text-align: center; margin-top: 1.2rem;">
+                    <p style="color: rgba(255,255,255,0.3); font-size: 0.85rem;">
+                        Don't have an account? 
+                        <a href="register.html" style="color: #fbbf24; text-decoration: none; font-weight: 600;">Register here</a>
+                    </p>
+                </div>
+            </form>
+            <div id="errorMessage" style="display: none; margin-top: 1rem; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem;"></div>
+        </div>
+        <p style="text-align: center; color: rgba(255,255,255,0.15); font-size: 0.7rem; margin-top: 1.5rem; letter-spacing: 0.5px;">
+            © 2026 ZINARA Online Self-Service System
+        </p>
+    </div>
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

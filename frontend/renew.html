@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renew License - ZINARA ZOSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <div class="logo-icon"><i class="fas fa-road"></i></div>
+            <div class="logo-text">ZINARA <span>ZOSS</span></div>
+        </a>
+
+        <div class="nav-label">Main</div>
+        <a href="dashboard.html">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+        <a href="renew.html" class="active">
+            <i class="fas fa-plus-circle"></i> Renew License
+        </a>
+
+        <div class="nav-label" id="adminLabel" style="display:none;">Admin</div>
+        <a href="integration.html" id="integrationLink" style="display:none;">
+            <i class="fas fa-plug"></i> Integration
+        </a>
+        <a href="admin/index.html" id="adminLink" style="display:none;">
+            <i class="fas fa-user-shield"></i> Admin Panel
+        </a>
+
+        <div class="bottom">
+            <div class="user-mini">
+                <div class="avatar" id="userAvatar">AM</div>
+                <div>
+                    <div class="name" id="userNameShort">Anesu Mhaka</div>
+                    <div class="role" id="userRole">Citizen</div>
+                </div>
+            </div>
+            <a href="#" onclick="handleLogout()" style="margin-top: 8px; color: var(--text-tertiary);">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="page-title">
+                <h1>Renew License</h1>
+                <p>Submit a new renewal application</p>
+            </div>
+            <div class="actions">
+                <a href="dashboard.html" class="btn-primary" style="background:var(--bg-card);color:var(--text-secondary);">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+
+        <!-- Renew Form -->
+        <div style="max-width: 640px;">
+            <div class="section-card">
+                <!-- Step Indicator -->
+                <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;">
+                    <div style="flex:1;height:3px;background:var(--gold);border-radius:4px;"></div>
+                    <div style="flex:1;height:3px;background:var(--border-subtle);border-radius:4px;"></div>
+                    <div style="flex:1;height:3px;background:var(--border-subtle);border-radius:4px;"></div>
+                    <div style="flex:1;height:3px;background:var(--border-subtle);border-radius:4px;"></div>
+                </div>
+
+                <form id="renewalForm">
+                    <!-- Step 1: Application Type -->
+                    <div style="margin-bottom:1.5rem;">
+                        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">
+                            <i class="fas fa-tag" style="color:var(--gold);margin-right:6px;"></i> Application Type
+                        </label>
+                        <select id="applicationType" class="form-control" style="width:100%;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);color:white;font-size:0.9rem;transition:var(--transition);outline:none;appearance:none;">
+                            <option value="" style="background:#0a0a1a;">Select type...</option>
+                            <option value="vehicle" style="background:#0a0a1a;">🚗 Vehicle License Only</option>
+                            <option value="radio" style="background:#0a0a1a;">📻 Radio License Only</option>
+                            <option value="both" style="background:#0a0a1a;">🔄 Both Vehicle & Radio</option>
+                        </select>
+                        <p style="font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;">
+                            <i class="fas fa-info-circle"></i> Your application will be automatically verified with ZINARA
+                        </p>
+                    </div>
+
+                    <!-- Step 2: Vehicle Selection -->
+                    <div id="vehicleSection" style="display:none;margin-bottom:1.5rem;">
+                        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">
+                            <i class="fas fa-car" style="color:var(--blue);margin-right:6px;"></i> Select Vehicle
+                        </label>
+                        <select id="vehicleId" class="form-control" style="width:100%;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);color:white;font-size:0.9rem;transition:var(--transition);outline:none;appearance:none;">
+                            <option value="" style="background:#0a0a1a;">Select a vehicle...</option>
+                        </select>
+                        <p style="font-size:0.7rem;color:var(--text-tertiary);margin-top:4px;">
+                            <i class="fas fa-shield-alt"></i> Only vehicles with active insurance are eligible
+                        </p>
+                    </div>
+
+                    <!-- Step 3: Radio Selection -->
+                    <div id="radioSection" style="display:none;margin-bottom:1.5rem;">
+                        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">
+                            <i class="fas fa-radio" style="color:var(--green);margin-right:6px;"></i> Select Radio License
+                        </label>
+                        <select id="radioLicenseId" class="form-control" style="width:100%;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);color:white;font-size:0.9rem;transition:var(--transition);outline:none;appearance:none;">
+                            <option value="" style="background:#0a0a1a;">Select a radio license...</option>
+                        </select>
+                    </div>
+
+                    <!-- Step 4: Fee Display -->
+                    <div id="feeDisplay" style="display:none;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:1.2rem 1.5rem;margin-bottom:1.5rem;">
+                        <div style="display:flex;justify-content:space-between;padding:4px 0;">
+                            <span style="color:var(--text-secondary);font-size:0.8rem;">License Fee</span>
+                            <span id="feeAmount" style="font-weight:700;color:white;">$0.00</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid var(--border-subtle);">
+                            <span style="color:var(--text-secondary);font-size:0.8rem;">Penalty</span>
+                            <span id="penaltyAmount" style="font-weight:700;color:#ef4444;">$0.00</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid var(--border-hover);margin-top:4px;">
+                            <span style="font-weight:600;color:var(--text-secondary);">Total</span>
+                            <span id="totalAmount" style="font-size:1.2rem;font-weight:800;color:var(--gold);">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" id="submitBtn"
+                            style="width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border:none;border-radius:var(--radius-sm);color:#05050f;font-weight:700;font-size:0.95rem;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:10px;">
+                        <i class="fas fa-paper-plane"></i> Submit Renewal Application
+                    </button>
+                </form>
+
+                <div id="errorMessage" style="display:none;margin-top:1rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;padding:12px 16px;border-radius:var(--radius-sm);font-size:0.85rem;"></div>
+                <div id="successMessage" style="display:none;margin-top:1rem;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:12px 16px;border-radius:var(--radius-sm);font-size:0.85rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/renew.js"></script>
+</body>
+</html>

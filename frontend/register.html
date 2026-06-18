@@ -8,81 +8,95 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body style="background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;">
+<body style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #1e3a8a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 1.5rem;">
     <div style="width: 100%; max-width: 440px;">
-        <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 32px; padding: 2.5rem 2rem; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 40px 80px rgba(0,0,0,0.5);">
+        <div style="background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 2.5rem 2rem; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 40px 80px rgba(0,0,0,0.5);">
             <div style="text-align: center; margin-bottom: 2rem;">
-                <div style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 8px 20px; border-radius: 20px;">
-                    <i class="fas fa-road" style="font-size: 1.8rem; color: #fbbf24;"></i>
-                    <span style="font-weight: 800; font-size: 1.4rem; color: white; letter-spacing: -0.5px;">ZINARA <span style="color: #fbbf24;">ZOSS</span></span>
+                <div style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.04); padding: 8px 20px; border-radius: 16px;">
+                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-road" style="color: #0f172a; font-size: 1.2rem;"></i>
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.2rem; color: white; letter-spacing: -0.5px;">ZINARA <span style="color: #fbbf24;">ZOSS</span></span>
                 </div>
-                <h2 style="color: white; font-size: 1.8rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.25rem;">Create Account</h2>
-                <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">Join the future of license renewal</p>
+                <h2 style="color: white; font-size: 1.6rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.25rem;">Create Account</h2>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.9rem;">Join the future of license renewal</p>
             </div>
             
             <form id="registerForm">
-                <div class="form-group">
-                    <label style="color: rgba(255,255,255,0.7); font-weight: 600; font-size: 0.85rem;">Full Name</label>
+                <div style="margin-bottom: 0.8rem;">
+                    <label style="color: rgba(255,255,255,0.6); font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 4px;">Full Name</label>
                     <div style="position: relative;">
-                        <i class="fas fa-user" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);"></i>
+                        <i class="fas fa-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.2);"></i>
                         <input id="full_name" type="text" required placeholder="John Doe"
-                               style="width: 100%; padding: 14px 16px 14px 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; color: white; font-size: 0.95rem; transition: all 0.3s ease; outline: none;">
+                               style="width: 100%; padding: 11px 16px 11px 44px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: white; font-size: 0.9rem; transition: all 0.3s ease; outline: none; font-family: inherit;">
+                        <style>
+                            #full_name:focus, #national_id:focus, #email:focus, #phone:focus, #password:focus, #confirm_password:focus {
+                                border-color: #fbbf24;
+                                box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
+                            }
+                            #full_name::placeholder, #national_id::placeholder, #email::placeholder, #phone::placeholder, #password::placeholder, #confirm_password::placeholder {
+                                color: rgba(255,255,255,0.2);
+                            }
+                        </style>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="color: rgba(255,255,255,0.7); font-weight: 600; font-size: 0.85rem;">National ID</label>
+                <div style="margin-bottom: 0.8rem;">
+                    <label style="color: rgba(255,255,255,0.6); font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 4px;">National ID</label>
                     <div style="position: relative;">
-                        <i class="fas fa-id-card" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);"></i>
+                        <i class="fas fa-id-card" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.2);"></i>
                         <input id="national_id" type="text" required placeholder="63-123456X"
-                               style="width: 100%; padding: 14px 16px 14px 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; color: white; font-size: 0.95rem; transition: all 0.3s ease; outline: none;">
+                               style="width: 100%; padding: 11px 16px 11px 44px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: white; font-size: 0.9rem; transition: all 0.3s ease; outline: none; font-family: inherit;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="color: rgba(255,255,255,0.7); font-weight: 600; font-size: 0.85rem;">Email Address</label>
+                <div style="margin-bottom: 0.8rem;">
+                    <label style="color: rgba(255,255,255,0.6); font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 4px;">Email Address</label>
                     <div style="position: relative;">
-                        <i class="fas fa-envelope" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);"></i>
+                        <i class="fas fa-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.2);"></i>
                         <input id="email" type="email" required placeholder="john.doe@gmail.com"
-                               style="width: 100%; padding: 14px 16px 14px 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; color: white; font-size: 0.95rem; transition: all 0.3s ease; outline: none;">
+                               style="width: 100%; padding: 11px 16px 11px 44px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: white; font-size: 0.9rem; transition: all 0.3s ease; outline: none; font-family: inherit;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="color: rgba(255,255,255,0.7); font-weight: 600; font-size: 0.85rem;">Phone Number</label>
+                <div style="margin-bottom: 0.8rem;">
+                    <label style="color: rgba(255,255,255,0.6); font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 4px;">Phone Number</label>
                     <div style="position: relative;">
-                        <i class="fas fa-phone" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);"></i>
+                        <i class="fas fa-phone" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.2);"></i>
                         <input id="phone" type="tel" required placeholder="0712345678"
-                               style="width: 100%; padding: 14px 16px 14px 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; color: white; font-size: 0.95rem; transition: all 0.3s ease; outline: none;">
+                               style="width: 100%; padding: 11px 16px 11px 44px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: white; font-size: 0.9rem; transition: all 0.3s ease; outline: none; font-family: inherit;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="color: rgba(255,255,255,0.7); font-weight: 600; font-size: 0.85rem;">Password</label>
+                <div style="margin-bottom: 0.8rem;">
+                    <label style="color: rgba(255,255,255,0.6); font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 4px;">Password</label>
                     <div style="position: relative;">
-                        <i class="fas fa-lock" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);"></i>
+                        <i class="fas fa-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.2);"></i>
                         <input id="password" type="password" required placeholder="Min 8 characters"
-                               style="width: 100%; padding: 14px 16px 14px 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; color: white; font-size: 0.95rem; transition: all 0.3s ease; outline: none;">
+                               style="width: 100%; padding: 11px 16px 11px 44px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: white; font-size: 0.9rem; transition: all 0.3s ease; outline: none; font-family: inherit;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="color: rgba(255,255,255,0.7); font-weight: 600; font-size: 0.85rem;">Confirm Password</label>
+                <div style="margin-bottom: 1.2rem;">
+                    <label style="color: rgba(255,255,255,0.6); font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 4px;">Confirm Password</label>
                     <div style="position: relative;">
-                        <i class="fas fa-check-circle" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);"></i>
+                        <i class="fas fa-check-circle" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.2);"></i>
                         <input id="confirm_password" type="password" required placeholder="Confirm your password"
-                               style="width: 100%; padding: 14px 16px 14px 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; color: white; font-size: 0.95rem; transition: all 0.3s ease; outline: none;">
+                               style="width: 100%; padding: 11px 16px 11px 44px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: white; font-size: 0.9rem; transition: all 0.3s ease; outline: none; font-family: inherit;">
                     </div>
                 </div>
                 <button type="submit" id="registerBtn"
-                        style="width: 100%; padding: 16px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 14px; color: #1a1a2e; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 0.5rem;">
+                        style="width: 100%; padding: 14px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 12px; color: #0f172a; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px;">
                     <i class="fas fa-user-plus"></i> Create Account
                 </button>
                 <div style="text-align: center; margin-top: 1.2rem;">
-                    <p style="color: rgba(255,255,255,0.4); font-size: 0.85rem;">
+                    <p style="color: rgba(255,255,255,0.3); font-size: 0.85rem;">
                         Already have an account? 
                         <a href="login.html" style="color: #fbbf24; text-decoration: none; font-weight: 600;">Sign in</a>
                     </p>
                 </div>
             </form>
-            <div id="errorMessage" style="display: none; margin-top: 1rem; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem;"></div>
-            <div id="successMessage" style="display: none; margin-top: 1rem; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3); color: #34d399; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem;"></div>
+            <div id="errorMessage" style="display: none; margin-top: 1rem; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem;"></div>
+            <div id="successMessage" style="display: none; margin-top: 1rem; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); color: #34d399; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem;"></div>
         </div>
+        <p style="text-align: center; color: rgba(255,255,255,0.08); font-size: 0.6rem; margin-top: 1.5rem; letter-spacing: 0.5px;">
+            © 2026 ZINARA Online Self-Service System
+        </p>
     </div>
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>

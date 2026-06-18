@@ -2,9 +2,14 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from datetime import datetime
-from backend.config import Config
-from backend.models import db, bcrypt
 import os
+import sys
+
+# Add the current directory to the path so Python can find our modules
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from config import Config
+from models import db, bcrypt
 
 # Import route blueprints
 from routes.auth import auth_bp

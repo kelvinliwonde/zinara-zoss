@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.models import db, Vehicle, RadioLicense, RenewalApplication
+from models import db, Vehicle, RadioLicense, RenewalApplication
 from datetime import datetime
 
 renewal_bp = Blueprint('renewal', __name__)

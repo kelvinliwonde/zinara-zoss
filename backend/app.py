@@ -2,8 +2,8 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from datetime import datetime
-from config import Config
-from models import db, bcrypt
+from backend.config import Config
+from backend.models import db, bcrypt
 import os
 
 # Import route blueprints

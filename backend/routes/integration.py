@@ -1,13 +1,9 @@
-# ============================================================
-# ZINARA Integration Routes
-# API endpoints that simulate ZINARA backend connection
-# ============================================================
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, User, Vehicle, RadioLicense, RenewalApplication
+from backend.models import db, User, Vehicle, RadioLicense, RenewalApplication, Payment
 from services.zinara_integration import ZINARAIntegration
 from datetime import datetime
+import json
 
 integration_bp = Blueprint('integration', __name__)
 
@@ -118,10 +114,6 @@ def process_zinara_payment():
     
     if result['success']:
         # Create payment record
-        from models import Payment
-        import hashlib
-        import random
-        
         payment = Payment(
             application_id=application.id,
             user_id=user_id,
@@ -131,10 +123,7 @@ def process_zinara_payment():
             status='completed',
             transaction_id=result['transaction_id'],
             payment_date=datetime.utcnow(),
-            gateway_response=jsonify({
-                'status': 'success',
-                'reference': result['payment_reference']
-            }).get_data(as_text=True)
+            gateway_response=json.dumps(result)
         )
         db.session.add(payment)
         

@@ -12,4 +12,4 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///data/zinara.db
+        value: postgresql://zinara_user:02UdcFjxHtFy2yaZCEAWK1pwV6KPwyjT@dpg-d8pv0t4vikkc73a192dg-a.oregon-postgres.render.com:5432/zinara

@@ -2,7 +2,7 @@ services:
   - type: web
     name: zinaraz-zoss
     runtime: python
-    buildCommand: pip install -r backend/requirements.txt
+    buildCommand: cd backend && pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION

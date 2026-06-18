@@ -1,18 +1,13 @@
-# ============================================================
-# ZINARA Integration Service
-# ============================================================
-
 import random
 import json
 from datetime import datetime, timedelta
 import time
 import hashlib
 
-# FIXED: This is the corrected import
+# CRITICAL FIX: Correct import
 from backend.models import db, Vehicle, RadioLicense, RenewalApplication, Payment
 
 class ZINARAIntegration:
-    """Simulates ZINARA's real backend integration"""
     
     ZINARA_VEHICLE_DB = {
         "ABC 1234": {"make": "Toyota", "model": "Corolla", "year": 2020, "status": "active"},

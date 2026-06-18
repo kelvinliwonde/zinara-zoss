@@ -9,39 +9,14 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from datetime import datetime
 
-# Try to import config, but if it fails, use defaults
-try:
-    from backend.config import Config
-except ImportError:
-    class Config:
-        SECRET_KEY = 'dev-key'
-        DEBUG = True
-        ENVIRONMENT = 'development'
-        CORS_ORIGINS = ['*']
+# All imports now start with 'backend.'
+from backend.config import Config
+from backend.models import db, bcrypt
+from backend.routes.auth import auth_bp
+from backend.routes.user import user_bp
+from backend.routes.renewal import renewal_bp
+from backend.routes.integration import integration_bp
 
-# Try to import models and routes
-try:
-    from backend.models import db, bcrypt
-    from backend.routes.auth import auth_bp
-    from backend.routes.user import user_bp
-    from backend.routes.renewal import renewal_bp
-    from backend.routes.integration import integration_bp
-except ImportError as e:
-    print(f"❌ Import error: {e}")
-    # Create a dummy app that shows the error
-    app = Flask(__name__)
-    @app.route('/')
-    def error_page():
-        return f"<h1>Import Error</h1><pre>{e}</pre>"
-    @app.route('/api/health')
-    def health_error():
-        return jsonify({"error": str(e), "status": "failed"})
-    
-    if __name__ == '__main__':
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-    sys.exit(0)
-
-# Create the app
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -63,7 +38,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'environment': getattr(Config, 'ENVIRONMENT', 'unknown')
+        'environment': Config.ENVIRONMENT
     })
 
 # Serve frontend files
@@ -80,18 +55,14 @@ def serve_frontend(path):
     except FileNotFoundError:
         return send_from_directory(FRONTEND_FOLDER, 'index.html')
 
-# Create tables
 with app.app_context():
-    try:
-        db.create_all()
-        print("✅ Database tables ready!")
-    except Exception as e:
-        print(f"❌ Database error: {e}")
+    db.create_all()
+    print("✅ Database tables ready!")
 
 if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
         port=int(os.environ.get('PORT', 5000)),
-        debug=True,
+        debug=Config.DEBUG,
         threaded=True
     )

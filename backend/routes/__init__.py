@@ -1,4 +1,3 @@
-# This file makes 'routes' a Python package
 from .auth import auth_bp
 from .user import user_bp
 from .renewal import renewal_bp

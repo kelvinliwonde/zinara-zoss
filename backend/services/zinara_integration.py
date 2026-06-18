@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import time
 import hashlib
 
-# FIXED: This is the ONLY change needed
+# FIXED: This is the corrected import
 from backend.models import db, Vehicle, RadioLicense, RenewalApplication, Payment
 
 class ZINARAIntegration:

@@ -3,19 +3,14 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from datetime import datetime
 import os
-import sys
 
-# Add the current directory to the path so Python can find our modules
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from config import Config
-from models import db, bcrypt
-
-# Import route blueprints
-from routes.auth import auth_bp
-from routes.user import user_bp
-from routes.renewal import renewal_bp
-from routes.integration import integration_bp
+# Use absolute imports from backend package
+from backend.config import Config
+from backend.models import db, bcrypt
+from backend.routes.auth import auth_bp
+from backend.routes.user import user_bp
+from backend.routes.renewal import renewal_bp
+from backend.routes.integration import integration_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -50,13 +45,10 @@ def serve_index():
 
 @app.route('/<path:path>')
 def serve_frontend(path):
-    # Check if the requested file exists in the frontend folder
     file_path = os.path.join(FRONTEND_FOLDER, path)
     if os.path.exists(file_path):
         return send_from_directory(FRONTEND_FOLDER, path)
-    else:
-        # If the file doesn't exist, serve the index.html
-        return send_from_directory(FRONTEND_FOLDER, 'index.html')
+    return send_from_directory(FRONTEND_FOLDER, 'index.html')
 
 # Create tables if they don't exist
 with app.app_context():

@@ -1,6 +1,5 @@
 # ============================================================
 # ZINARA Integration Service
-# Simulates connection to ZINARA's real backend
 # ============================================================
 
 import random
@@ -9,13 +8,12 @@ from datetime import datetime, timedelta
 import time
 import hashlib
 
-# FIXED: Changed from 'from models import...' to 'from backend.models import...'
+# FIXED: This is the ONLY change needed
 from backend.models import db, Vehicle, RadioLicense, RenewalApplication, Payment
 
 class ZINARAIntegration:
     """Simulates ZINARA's real backend integration"""
     
-    # Simulated ZINARA database of approved vehicles
     ZINARA_VEHICLE_DB = {
         "ABC 1234": {"make": "Toyota", "model": "Corolla", "year": 2020, "status": "active"},
         "DEF 5678": {"make": "Honda", "model": "Civic", "year": 2019, "status": "active"},
@@ -26,15 +24,8 @@ class ZINARAIntegration:
     
     @staticmethod
     def check_vehicle_status(registration_number):
-        """
-        Check if a vehicle is registered and active in ZINARA's system
-        Returns: dict with status, make, model, year
-        """
-        # Simulate API call delay
-        time.sleep(0.5)  # Simulate network latency
-        
+        time.sleep(0.5)
         vehicle = ZINARAIntegration.ZINARA_VEHICLE_DB.get(registration_number.upper())
-        
         if vehicle:
             return {
                 "success": True,
@@ -45,9 +36,7 @@ class ZINARAIntegration:
                 "message": "Vehicle found in ZINARA database"
             }
         else:
-            # Simulate checking against a larger database
-            # In real scenario, this would be an API call to ZINARA
-            if random.random() > 0.2:  # 80% chance of being found
+            if random.random() > 0.2:
                 return {
                     "success": True,
                     "status": "active",
@@ -65,14 +54,8 @@ class ZINARAIntegration:
     
     @staticmethod
     def check_radio_license(radio_serial):
-        """
-        Check radio license status with ZBC (Zimbabwe Broadcasting Corporation)
-        Returns: dict with status
-        """
-        time.sleep(0.3)  # Simulate API call
-        
-        # Simulate ZBC database check
-        if random.random() > 0.15:  # 85% chance radio license is valid
+        time.sleep(0.3)
+        if random.random() > 0.15:
             return {
                 "success": True,
                 "status": "valid",
@@ -88,18 +71,9 @@ class ZINARAIntegration:
     
     @staticmethod
     def submit_application(application_data):
-        """
-        Submit renewal application to ZINARA's backend
-        Returns: dict with reference number and status
-        """
-        time.sleep(1.0)  # Simulate processing time
-        
-        # Generate ZINARA reference number
+        time.sleep(1.0)
         ref_number = f"ZIN-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-        
-        # Simulate approval decision (90% approval rate)
         approved = random.random() > 0.1
-        
         return {
             "success": True,
             "reference_number": ref_number,
@@ -111,18 +85,10 @@ class ZINARAIntegration:
     
     @staticmethod
     def check_application_status(reference_number):
-        """
-        Check the status of a submitted application with ZINARA
-        Returns: dict with current status
-        """
         time.sleep(0.4)
-        
-        # Simulate different statuses
         statuses = ["pending", "under_review", "approved", "completed", "rejected"]
         weights = [0.2, 0.3, 0.25, 0.2, 0.05]
-        
         current_status = random.choices(statuses, weights=weights)[0]
-        
         return {
             "success": True,
             "reference_number": reference_number,
@@ -134,18 +100,9 @@ class ZINARAIntegration:
     
     @staticmethod
     def process_payment(application_id, amount, payment_method):
-        """
-        Simulate payment processing through ZINARA's payment gateway
-        Returns: dict with payment confirmation
-        """
         time.sleep(0.8)
-        
-        # Generate payment reference
         payment_ref = f"PAY-{datetime.now().strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
-        
-        # Simulate payment success (98% success rate)
         success = random.random() > 0.02
-        
         return {
             "success": success,
             "payment_reference": payment_ref,
@@ -159,16 +116,8 @@ class ZINARAIntegration:
     
     @staticmethod
     def generate_digital_license(application_id, user_data, vehicle_data):
-        """
-        Generate a digital license from ZINARA
-        Returns: dict with license details and QR code data
-        """
         time.sleep(0.6)
-        
-        # Generate unique license number
         license_number = f"LIC-{datetime.now().strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
-        
-        # Generate QR code data
         qr_data = {
             "license_number": license_number,
             "owner": user_data.get("full_name", ""),
@@ -177,11 +126,8 @@ class ZINARAIntegration:
             "expiry_date": (datetime.now() + timedelta(days=365)).isoformat(),
             "verification_url": f"https://verify.zinara.co.zw/{license_number}"
         }
-        
-        # Create a hash for verification
         hash_string = f"{license_number}{qr_data['owner']}{qr_data['vehicle']}{qr_data['expiry_date']}"
         verification_hash = hashlib.sha256(hash_string.encode()).hexdigest()[:16]
-        
         return {
             "success": True,
             "license_number": license_number,
@@ -195,10 +141,6 @@ class ZINARAIntegration:
     
     @staticmethod
     def get_real_time_data():
-        """
-        Get real-time data from ZINARA (simulated)
-        Returns: dict with system status and metrics
-        """
         return {
             "system_status": "operational",
             "queue_size": random.randint(0, 50),

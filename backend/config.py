@@ -10,17 +10,15 @@ class Config:
     DEBUG = os.environ.get('DEBUG', 'False') == 'True'
     ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
     
-    # Database - works for both local and production
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    
-    # Use environment variable for database (Render provides this)
-    # Fallback to local SQLite
+    # Database - Works for both local SQLite and Render PostgreSQL
     DATABASE_URL = os.environ.get('DATABASE_URL')
+    
     if DATABASE_URL:
-        # For PostgreSQL on Render
+        # Use PostgreSQL on Render
         SQLALCHEMY_DATABASE_URI = DATABASE_URL
     else:
-        # Local SQLite
+        # Fallback to SQLite locally
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         DB_PATH = os.path.join(BASE_DIR, '..', 'data', 'zinara.db')
         SQLALCHEMY_DATABASE_URI = f'sqlite:///{DB_PATH}'
     
@@ -37,12 +35,13 @@ class Config:
     PENALTY_PER_DAY = 0.50
     MAX_PENALTY_DAYS = 90
     
-    # CORS - Allow both local and production
+    # CORS - Allow local and production
     CORS_ORIGINS = [
-        'http://localhost:3000', 
+        'http://localhost:3000',
         'http://localhost:5000',
         'http://127.0.0.1:5000',
         'http://127.0.0.1:5500',
-        'https://zinara-zoss.onrender.com',  # Your Render URL
-        'https://*.onrender.com'  # All Render URLs
+        'https://zinaraz-zoss.onrender.com',
+        'https://zinara-zoss.onrender.com',
+        'https://*.onrender.com'
     ]

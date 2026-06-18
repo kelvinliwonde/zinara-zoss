@@ -43,11 +43,9 @@ def serve_index():
 
 @app.route('/<path:path>')
 def serve_frontend(path):
-    # Check if file exists in frontend
     frontend_path = os.path.join('..', 'frontend', path)
     if os.path.exists(frontend_path):
         return send_from_directory('../frontend', path)
-    # If not, serve index.html (for SPA routing)
     return send_from_directory('../frontend', 'index.html')
 
 # Create tables if they don't exist

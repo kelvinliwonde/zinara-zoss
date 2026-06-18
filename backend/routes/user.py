@@ -7,7 +7,6 @@ user_bp = Blueprint('user', __name__)
 @user_bp.route('/profile', methods=['GET'])
 @jwt_required()
 def get_profile():
-    """Get user profile"""
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     
@@ -23,7 +22,6 @@ def get_profile():
 @user_bp.route('/vehicles', methods=['GET'])
 @jwt_required()
 def get_vehicles():
-    """Get all vehicles for current user"""
     user_id = int(get_jwt_identity())
     vehicles = Vehicle.query.filter_by(user_id=user_id, is_active=True).all()
     
@@ -34,7 +32,6 @@ def get_vehicles():
 @user_bp.route('/vehicles', methods=['POST'])
 @jwt_required()
 def add_vehicle():
-    """Add a vehicle to user's profile"""
     user_id = int(get_jwt_identity())
     data = request.get_json()
     
@@ -81,7 +78,6 @@ def add_vehicle():
 @user_bp.route('/radio-licenses', methods=['GET'])
 @jwt_required()
 def get_radio_licenses():
-    """Get all radio licenses for current user"""
     user_id = int(get_jwt_identity())
     radios = RadioLicense.query.filter_by(user_id=user_id, is_active=True).all()
     
@@ -92,7 +88,6 @@ def get_radio_licenses():
 @user_bp.route('/radio-licenses', methods=['POST'])
 @jwt_required()
 def add_radio_license():
-    """Add a radio license to user's profile"""
     user_id = int(get_jwt_identity())
     data = request.get_json()
     

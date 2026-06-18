@@ -46,6 +46,5 @@ class Config:
         'http://127.0.0.1:5000',
         'http://127.0.0.1:5500',
         'https://zinaraz-zoss.onrender.com',
-        'https://zinara-zoss.onrender.com',
         'https://*.onrender.com'
     ]

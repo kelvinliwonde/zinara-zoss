@@ -7,7 +7,6 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    """Register a new user"""
     data = request.get_json()
     
     required_fields = ['national_id', 'full_name', 'email', 'phone', 'password', 'confirm_password']
@@ -51,7 +50,6 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """Login user"""
     data = request.get_json()
     
     if not data.get('email') or not data.get('password'):
@@ -84,7 +82,6 @@ def login():
 @auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
-    """Refresh access token"""
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     
@@ -103,5 +100,4 @@ def refresh():
 @auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    """Logout user"""
     return jsonify({'message': 'Logout successful'}), 200

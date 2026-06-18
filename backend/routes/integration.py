@@ -10,7 +10,6 @@ integration_bp = Blueprint('integration', __name__)
 @integration_bp.route('/verify-vehicle', methods=['POST'])
 @jwt_required()
 def verify_vehicle():
-    """Verify a vehicle with ZINARA's database"""
     data = request.get_json()
     registration_number = data.get('registration_number')
     
@@ -23,7 +22,6 @@ def verify_vehicle():
 @integration_bp.route('/verify-radio', methods=['POST'])
 @jwt_required()
 def verify_radio():
-    """Verify radio license with ZBC"""
     data = request.get_json()
     radio_serial = data.get('radio_serial_number')
     
@@ -36,7 +34,6 @@ def verify_radio():
 @integration_bp.route('/submit-application', methods=['POST'])
 @jwt_required()
 def submit_to_zinara():
-    """Submit renewal application to ZINARA"""
     user_id = int(get_jwt_identity())
     data = request.get_json()
     
@@ -48,7 +45,6 @@ def submit_to_zinara():
     if not application:
         return jsonify({'error': 'Application not found'}), 404
     
-    # Prepare application data for ZINARA
     user = User.query.get(user_id)
     vehicle = Vehicle.query.get(application.vehicle_id) if application.vehicle_id else None
     radio = RadioLicense.query.get(application.radio_license_id) if application.radio_license_id else None
@@ -69,11 +65,9 @@ def submit_to_zinara():
         'total_amount': float(application.total_amount)
     }
     
-    # Submit to ZINARA
     result = ZINARAIntegration.submit_application(application_data)
     
     if result['success']:
-        # Update application status
         application.status = 'verified'
         application.verification_date = datetime.utcnow()
         application.notes = f"Submitted to ZINARA. Reference: {result.get('reference_number', 'N/A')}"
@@ -84,14 +78,12 @@ def submit_to_zinara():
 @integration_bp.route('/check-status/<reference_number>', methods=['GET'])
 @jwt_required()
 def check_application_status(reference_number):
-    """Check application status with ZINARA"""
     result = ZINARAIntegration.check_application_status(reference_number)
     return jsonify(result), 200
 
 @integration_bp.route('/process-payment', methods=['POST'])
 @jwt_required()
 def process_zinara_payment():
-    """Process payment through ZINARA's gateway"""
     user_id = int(get_jwt_identity())
     data = request.get_json()
     
@@ -105,7 +97,6 @@ def process_zinara_payment():
     if not application:
         return jsonify({'error': 'Application not found'}), 404
     
-    # Process payment
     result = ZINARAIntegration.process_payment(
         application_id,
         float(application.total_amount),
@@ -113,7 +104,6 @@ def process_zinara_payment():
     )
     
     if result['success']:
-        # Create payment record
         payment = Payment(
             application_id=application.id,
             user_id=user_id,
@@ -127,12 +117,10 @@ def process_zinara_payment():
         )
         db.session.add(payment)
         
-        # Update application
         application.status = 'paid'
         application.payment_date = datetime.utcnow()
         db.session.commit()
         
-        # Generate digital license
         user = User.query.get(user_id)
         vehicle = Vehicle.query.get(application.vehicle_id)
         
@@ -160,14 +148,12 @@ def process_zinara_payment():
 @integration_bp.route('/system-status', methods=['GET'])
 @jwt_required()
 def get_system_status():
-    """Get ZINARA system status"""
     result = ZINARAIntegration.get_real_time_data()
     return jsonify(result), 200
 
 @integration_bp.route('/generate-license/<int:application_id>', methods=['POST'])
 @jwt_required()
 def generate_digital_license(application_id):
-    """Generate a digital license for a completed application"""
     user_id = int(get_jwt_identity())
     
     application = RenewalApplication.query.get(application_id)

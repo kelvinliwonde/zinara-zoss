@@ -8,7 +8,6 @@ renewal_bp = Blueprint('renewal', __name__)
 @renewal_bp.route('/apply', methods=['POST'])
 @jwt_required()
 def apply_renewal():
-    """Apply for license renewal"""
     user_id = int(get_jwt_identity())
     data = request.get_json()
     
@@ -74,7 +73,6 @@ def apply_renewal():
 @renewal_bp.route('/applications', methods=['GET'])
 @jwt_required()
 def get_applications():
-    """Get all renewal applications for current user"""
     user_id = int(get_jwt_identity())
     
     applications = RenewalApplication.query.filter_by(user_id=user_id).order_by(
@@ -88,7 +86,6 @@ def get_applications():
 @renewal_bp.route('/applications/<int:application_id>', methods=['GET'])
 @jwt_required()
 def get_application(application_id):
-    """Get specific renewal application"""
     user_id = int(get_jwt_identity())
     
     application = RenewalApplication.query.filter_by(id=application_id, user_id=user_id).first()
@@ -103,7 +100,6 @@ def get_application(application_id):
 @renewal_bp.route('/calculate-fees', methods=['POST'])
 @jwt_required()
 def calculate_fees():
-    """Calculate renewal fees without creating application"""
     user_id = int(get_jwt_identity())
     data = request.get_json()
     

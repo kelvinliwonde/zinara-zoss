@@ -3,8 +3,11 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from datetime import datetime
 import os
+import sys
 
-# Now that root is 'backend', imports are relative to backend folder
+# Force Python to find the backend folder
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from config import Config
 from models import db, bcrypt
 from routes.auth import auth_bp
@@ -15,7 +18,6 @@ from routes.integration import integration_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Initialize extensions
 db.init_app(app)
 bcrypt.init_app(app)
 jwt = JWTManager(app)
@@ -27,7 +29,6 @@ app.register_blueprint(user_bp, url_prefix='/api/user')
 app.register_blueprint(renewal_bp, url_prefix='/api/renewal')
 app.register_blueprint(integration_bp, url_prefix='/api/integration')
 
-# Health check route
 @app.route('/api/health')
 def health_check():
     return jsonify({
@@ -36,7 +37,6 @@ def health_check():
         'environment': Config.ENVIRONMENT
     })
 
-# Get the absolute path to the 'frontend' folder (now one level up from backend)
 FRONTEND_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'frontend')
 
 @app.route('/')
@@ -45,15 +45,15 @@ def serve_index():
 
 @app.route('/<path:path>')
 def serve_frontend(path):
-    file_path = os.path.join(FRONTEND_FOLDER, path)
-    if os.path.exists(file_path):
+    try:
         return send_from_directory(FRONTEND_FOLDER, path)
-    return send_from_directory(FRONTEND_FOLDER, 'index.html')
+    except FileNotFoundError:
+        return send_from_directory(FRONTEND_FOLDER, 'index.html')
 
-# Create tables if they don't exist
 with app.app_context():
     db.create_all()
     print("✅ Database tables ready!")
+    print(f"🔍 Frontend folder: {FRONTEND_FOLDER}")
 
 if __name__ == '__main__':
     app.run(

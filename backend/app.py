@@ -4,13 +4,13 @@ from flask_jwt_extended import JWTManager
 from datetime import datetime
 import os
 
-# Use absolute imports from backend package
-from backend.config import Config
-from backend.models import db, bcrypt
-from backend.routes.auth import auth_bp
-from backend.routes.user import user_bp
-from backend.routes.renewal import renewal_bp
-from backend.routes.integration import integration_bp
+# Now that root is 'backend', imports are relative to backend folder
+from config import Config
+from models import db, bcrypt
+from routes.auth import auth_bp
+from routes.user import user_bp
+from routes.renewal import renewal_bp
+from routes.integration import integration_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -36,7 +36,7 @@ def health_check():
         'environment': Config.ENVIRONMENT
     })
 
-# Get the absolute path to the 'frontend' folder
+# Get the absolute path to the 'frontend' folder (now one level up from backend)
 FRONTEND_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'frontend')
 
 @app.route('/')

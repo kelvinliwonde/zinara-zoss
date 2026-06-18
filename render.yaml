@@ -1,9 +1,10 @@
 services:
   - type: web
-    name: zinara-zoss
+    name: zinaraz-zoss
     runtime: python
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd backend && gunicorn app:app
+    root: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -12,4 +13,6 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: postgresql://zinara_user:02UdcFjxHtFy2yaZCEAWK1pwV6KPwyjT@dpg-d8pv0t4vikkc73a192dg-a.oregon-postgres.render.com:5432/zinara
+        fromDatabase:
+          name: zinara-db
+          property: connectionString

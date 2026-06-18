@@ -1,9 +1,12 @@
 import random
-import sqlite3
+import os
+import psycopg2
 from datetime import datetime, timedelta
 import bcrypt
 
-# Zimbabwean names
+# Track used emails
+used_emails = set()
+
 ZIM_NAMES = [
     "Tendai Moyo", "Chipo Ncube", "Farai Dube", "Rudo Sibanda", "Takunda Muzenda",
     "Nyaradzo Chikwava", "Tafadzwa Makoni", "Kudzai Murewa", "Anesu Mhaka", "Rutendo Chikwanha",
@@ -50,19 +53,31 @@ def generate_radio_serial():
 def generate_email(name):
     domains = ['gmail.com', 'yahoo.com', 'zimweb.co.zw']
     first, last = name.lower().split(' ')
-    return f"{first}.{last}{random.randint(1, 99)}@{random.choice(domains)}"
+    for attempt in range(100):
+        email = f"{first}.{last}{random.randint(1, 999)}@{random.choice(domains)}"
+        if email not in used_emails:
+            used_emails.add(email)
+            return email
+    return f"{first}.{last}{random.randint(1, 9999)}@gmail.com"
 
 def generate_fake_data():
-    conn = sqlite3.connect('zinara.db')
+    # Connect to PostgreSQL
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor()
-    
-    # Clear existing data
-    cursor.execute('DELETE FROM audit_logs')
-    cursor.execute('DELETE FROM payments')
-    cursor.execute('DELETE FROM renewal_applications')
-    cursor.execute('DELETE FROM radio_licenses')
-    cursor.execute('DELETE FROM vehicles')
-    cursor.execute('DELETE FROM users')
+    print("🌐 Connected to PostgreSQL database")
+
+    # Clear existing data (ORDER MATTERS - delete child tables first)
+    try:
+        cursor.execute('DELETE FROM audit_logs')
+        cursor.execute('DELETE FROM payments')
+        cursor.execute('DELETE FROM renewal_applications')
+        cursor.execute('DELETE FROM radio_licenses')
+        cursor.execute('DELETE FROM vehicles')
+        cursor.execute('DELETE FROM users')
+        conn.commit()
+        print("🗑️ Cleared existing data")
+    except Exception as e:
+        print(f"⚠️ Could not clear all tables: {e}")
     
     users = []
     vehicles = []
@@ -70,7 +85,7 @@ def generate_fake_data():
     applications = []
     payments = []
     
-    # Generate 100 users
+    print("👤 Generating 100 users...")
     for i in range(100):
         name = random.choice(ZIM_NAMES)
         password = bcrypt.hashpw("Password123".encode('utf-8'), bcrypt.gensalt())
@@ -81,15 +96,16 @@ def generate_fake_data():
             generate_phone(),
             password.decode('utf-8'),
             'citizen',
-            1,
+            True,
             datetime.now().isoformat(),
             datetime.now().isoformat(),
             (datetime.now() - timedelta(days=random.randint(1, 365))).isoformat(),
-            1
+            True
         )
         users.append(user)
-        
-        # Generate 1-3 vehicles per user
+    
+    print("🚗 Generating vehicles...")
+    for i in range(100):
         for v in range(random.randint(1, 3)):
             make = random.choice(VEHICLE_MAKES)
             model = random.choice(VEHICLE_MODELS[make])
@@ -113,11 +129,12 @@ def generate_fake_data():
                 (datetime.now().date() + timedelta(days=random.randint(1, 365))).isoformat(),
                 last_renewal.isoformat(),
                 expiry_date.isoformat(),
-                1
+                True
             )
             vehicles.append(vehicle)
-        
-        # Generate radio licenses
+    
+    print("📻 Generating radio licenses...")
+    for i in range(100):
         if random.random() > 0.3:
             for r in range(random.randint(1, 2)):
                 expiry_date = datetime.now().date() + timedelta(days=random.randint(-90, 365))
@@ -130,15 +147,18 @@ def generate_fake_data():
                     random.choice(['Harare', 'Bulawayo', 'Mutare', 'Gweru']),
                     (expiry_date - timedelta(days=random.randint(300, 400))).isoformat(),
                     expiry_date.isoformat(),
-                    1
+                    True
                 )
                 radio_licenses.append(radio)
     
     # Insert users
-    cursor.executemany('''
+    print("📝 Inserting users...")
+    user_insert = '''
         INSERT INTO users (national_id, full_name, email, phone, password_hash, role, is_verified, created_at, updated_at, last_login, is_active)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', users)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    '''
+    for user in users:
+        cursor.execute(user_insert, user)
     conn.commit()
     
     # Get user IDs
@@ -146,30 +166,31 @@ def generate_fake_data():
     user_ids = [row[0] for row in cursor.fetchall()]
     
     # Insert vehicles
-    updated_vehicles = []
-    for i, vehicle in enumerate(vehicles):
-        user_id = user_ids[i % len(user_ids)]
-        updated_vehicles.append((user_id,) + vehicle[1:])
-    
-    cursor.executemany('''
+    print("📝 Inserting vehicles...")
+    vehicle_insert = '''
         INSERT INTO vehicles (user_id, registration_number, vehicle_type, make, model, year, engine_number, chassis_number, color, seating_capacity, tare_weight, insurance_provider, insurance_policy_number, insurance_expiry_date, last_renewal_date, expiry_date, is_active)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', updated_vehicles)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    '''
+    for i, vehicle in enumerate(vehicles):
+        vehicle_list = list(vehicle)
+        vehicle_list[0] = user_ids[i % len(user_ids)]
+        cursor.execute(vehicle_insert, tuple(vehicle_list))
     conn.commit()
     
     # Insert radio licenses
-    updated_radios = []
-    for i, radio in enumerate(radio_licenses):
-        user_id = user_ids[i % len(user_ids)]
-        updated_radios.append((user_id,) + radio[1:])
-    
-    cursor.executemany('''
+    print("📝 Inserting radio licenses...")
+    radio_insert = '''
         INSERT INTO radio_licenses (user_id, radio_serial_number, radio_make, radio_model, radio_type, installation_location, last_renewal_date, expiry_date, is_active)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', updated_radios)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+    '''
+    for i, radio in enumerate(radio_licenses):
+        radio_list = list(radio)
+        radio_list[0] = user_ids[i % len(user_ids)]
+        cursor.execute(radio_insert, tuple(radio_list))
     conn.commit()
     
     # Generate applications
+    print("📄 Generating applications...")
     cursor.execute('SELECT id, user_id FROM vehicles')
     vehicle_data = cursor.fetchall()
     cursor.execute('SELECT id, user_id FROM radio_licenses')
@@ -224,14 +245,18 @@ def generate_fake_data():
         applications.append(app)
     
     if applications:
-        cursor.executemany('''
+        print("📝 Inserting applications...")
+        app_insert = '''
             INSERT INTO renewal_applications (user_id, vehicle_id, radio_license_id, application_type, status, fee_amount, penalty_fee, total_amount, application_date, verification_date, payment_date, completion_date, qr_code, digital_license_path, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', applications)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        '''
+        for app in applications:
+            cursor.execute(app_insert, app)
         conn.commit()
     
     # Generate payments
-    cursor.execute('SELECT id, user_id FROM renewal_applications WHERE status IN ("paid", "completed")')
+    print("💳 Generating payments...")
+    cursor.execute("SELECT id, user_id FROM renewal_applications WHERE status IN ('paid', 'completed')")
     app_ids = cursor.fetchall()
     
     for app_id, user_id in app_ids:
@@ -254,14 +279,17 @@ def generate_fake_data():
             payments.append(payment)
     
     if payments:
-        cursor.executemany('''
+        print("📝 Inserting payments...")
+        pay_insert = '''
             INSERT INTO payments (application_id, user_id, payment_method, payment_reference, amount, status, transaction_id, payment_date, settlement_date, gateway_response)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', payments)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        '''
+        for payment in payments:
+            cursor.execute(pay_insert, payment)
+        conn.commit()
     
-    conn.commit()
     conn.close()
-    print("✅ Fake data generated successfully!")
+    print("\n✅ Fake data generated successfully!")
     print(f"   - Users: {len(users)}")
     print(f"   - Vehicles: {len(vehicles)}")
     print(f"   - Radio Licenses: {len(radio_licenses)}")

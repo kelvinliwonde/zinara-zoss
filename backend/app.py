@@ -41,17 +41,23 @@ def health_check():
         'environment': Config.ENVIRONMENT
     })
 
-# Serve frontend files
+# ---------- FIXED: Force Flask to find frontend files ----------
+# Get the absolute path to the 'frontend' folder
+FRONTEND_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'frontend')
+
 @app.route('/')
 def serve_index():
-    return send_from_directory('../frontend', 'index.html')
+    return send_from_directory(FRONTEND_FOLDER, 'index.html')
 
 @app.route('/<path:path>')
 def serve_frontend(path):
-    frontend_path = os.path.join('..', 'frontend', path)
-    if os.path.exists(frontend_path):
-        return send_from_directory('../frontend', path)
-    return send_from_directory('../frontend', 'index.html')
+    # Check if the requested file exists in the frontend folder
+    file_path = os.path.join(FRONTEND_FOLDER, path)
+    if os.path.exists(file_path):
+        return send_from_directory(FRONTEND_FOLDER, path)
+    else:
+        # If the file doesn't exist, serve the index.html (for SPA routing)
+        return send_from_directory(FRONTEND_FOLDER, 'index.html')
 
 # Create tables if they don't exist
 with app.app_context():

@@ -16,3 +16,4 @@ numpy
 email-validator
 phonenumbers
 gunicorn==21.2.0
+psycopg2-binary==2.9.9   ← MAKE SURE THIS LINE EXISTS!

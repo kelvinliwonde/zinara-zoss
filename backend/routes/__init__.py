@@ -1,6 +1,4 @@
 # This file makes 'routes' a Python package
-# It imports all routes so app.py can import them from one place
-
 from .auth import auth_bp
 from .user import user_bp
 from .renewal import renewal_bp

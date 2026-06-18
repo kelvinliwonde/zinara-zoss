@@ -24,7 +24,6 @@ class User(db.Model):
     last_login = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
     
-    # Relationships
     vehicles = db.relationship('Vehicle', backref='owner', lazy=True)
     radio_licenses = db.relationship('RadioLicense', backref='owner', lazy=True)
     renewal_applications = db.relationship('RenewalApplication', backref='applicant', lazy=True)
@@ -97,7 +96,6 @@ class Vehicle(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
     renewal_applications = db.relationship('RenewalApplication', backref='vehicle', lazy=True)
     
     def calculate_fee(self):
@@ -159,7 +157,6 @@ class RadioLicense(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
     renewal_applications = db.relationship('RenewalApplication', backref='radio_license', lazy=True)
     
     def calculate_fee(self):
@@ -209,7 +206,6 @@ class RenewalApplication(db.Model):
     digital_license_path = db.Column(db.String(255))
     notes = db.Column(db.Text)
     
-    # Relationships
     payments = db.relationship('Payment', backref='application', lazy=True)
     
     def generate_qr_code(self):

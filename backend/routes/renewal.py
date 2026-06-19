@@ -5,16 +5,20 @@ Handles /api/renewal/...
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.models import db, User, Vehicle, Application
+from backend.models import db, User, Vehicle, RadioLicense, Application
 
 renewal_bp = Blueprint('renewal', __name__)
 
-# Fee schedule (USD)
 FEES = {
     'vehicle': 50.00,
     'radio':   20.00,
     'both':    70.00,
 }
+
+
+@renewal_bp.route('/fees', methods=['GET'])
+def get_fees():
+    return jsonify({'fees': FEES})
 
 
 @renewal_bp.route('/submit', methods=['POST'])
@@ -28,6 +32,8 @@ def submit_renewal():
         return jsonify({'error': 'type must be vehicle, radio, or both'}), 400
 
     vehicle_id = None
+    radio_id   = None
+
     if renewal_type in ('vehicle', 'both'):
         vehicle_id = data.get('vehicle_id')
         if vehicle_id:
@@ -35,26 +41,34 @@ def submit_renewal():
             if not vehicle:
                 return jsonify({'error': 'Vehicle not found or not owned by you'}), 404
 
-    application = Application(
-        user_id    = user_id,
-        vehicle_id = vehicle_id,
-        type       = renewal_type,
-        amount     = FEES[renewal_type],
-        status     = 'pending',
-        notes      = data.get('notes', ''),
-    )
-    db.session.add(application)
-    db.session.commit()
+    if renewal_type in ('radio', 'both'):
+        radio_id = data.get('radio_id')
+        if radio_id:
+            radio = RadioLicense.query.filter_by(id=radio_id, user_id=user_id).first()
+            if not radio:
+                return jsonify({'error': 'Radio license not found or not owned by you'}), 404
 
-    return jsonify({
-        'message':     'Renewal submitted successfully',
-        'application': application.to_dict(),
-    }), 201
+    try:
+        application = Application(
+            user_id    = user_id,
+            vehicle_id = vehicle_id,
+            radio_id   = radio_id,
+            type       = renewal_type,
+            amount     = FEES[renewal_type],
+            status     = 'pending',
+            notes      = data.get('notes', ''),
+        )
+        db.session.add(application)
+        db.session.commit()
 
+        return jsonify({
+            'message':     'Renewal submitted successfully',
+            'application': application.to_dict(),
+        }), 201
 
-@renewal_bp.route('/fees', methods=['GET'])
-def get_fees():
-    return jsonify({'fees': FEES})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
 @renewal_bp.route('/<int:app_id>', methods=['GET'])
@@ -62,27 +76,29 @@ def get_fees():
 def get_application(app_id):
     user_id = int(get_jwt_identity())
     app     = Application.query.get_or_404(app_id)
+    user    = User.query.get(user_id)
 
-    user = User.query.get(user_id)
     if app.user_id != user_id and user.role not in ('admin', 'super_admin'):
         return jsonify({'error': 'Access denied'}), 403
 
     return jsonify({'application': app.to_dict()})
 
 
-# ── Admin actions ─────────────────────────────────────────────
-def _require_admin():
-    user = User.query.get(int(get_jwt_identity()))
-    if not user or user.role not in ('admin', 'super_admin'):
-        return None, jsonify({'error': 'Admin access required'}), 403
-    return user, None, None
+@renewal_bp.route('/my-applications', methods=['GET'])
+@jwt_required()
+def my_applications():
+    user_id = int(get_jwt_identity())
+    apps    = Application.query.filter_by(user_id=user_id)\
+                               .order_by(Application.created_at.desc()).all()
+    return jsonify({'applications': [a.to_dict() for a in apps]})
 
 
+# ── Admin routes ──────────────────────────────────────────────
 @renewal_bp.route('/admin/all', methods=['GET'])
 @jwt_required()
 def admin_all_applications():
-    user = User.query.get_or_404(int(get_jwt_identity()))
-    if user.role not in ('admin', 'super_admin'):
+    admin = User.query.get_or_404(int(get_jwt_identity()))
+    if admin.role not in ('admin', 'super_admin'):
         return jsonify({'error': 'Admin access required'}), 403
 
     status = request.args.get('status')
@@ -108,7 +124,6 @@ def approve_application(app_id):
     app.status      = 'verified'
     app.reviewed_by = admin.id
     db.session.commit()
-
     return jsonify({'message': 'Application approved', 'application': app.to_dict()})
 
 
@@ -126,7 +141,6 @@ def reject_application(app_id):
     app.reviewed_by = admin.id
     app.notes       = data.get('reason', app.notes)
     db.session.commit()
-
     return jsonify({'message': 'Application rejected', 'application': app.to_dict()})
 
 

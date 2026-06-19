@@ -47,6 +47,11 @@ FRONTEND_FOLDER = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), '..', 'frontend'
 )
 
+# Debug: print the path so we can see it in Render logs
+print(f"✅ Frontend folder: {FRONTEND_FOLDER}")
+print(f"✅ Exists: {os.path.exists(FRONTEND_FOLDER)}")
+print(f"✅ Files: {os.listdir(FRONTEND_FOLDER) if os.path.exists(FRONTEND_FOLDER) else 'NOT FOUND'}")
+
 @app.route('/')
 def serve_index():
     return send_from_directory(FRONTEND_FOLDER, 'index.html')

@@ -66,13 +66,15 @@
                     </p>
                 </div>
             </form>
-            <div id="errorMessage" style="display: none; margin-top: 1rem; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem;"></div>
+            <div id="errorMessage" class="hidden" style="margin-top: 1rem; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; padding: 12px 16px; border-radius: 12px; font-size: 0.9rem;"></div>
+            <style>.hidden { display: none !important; }</style>
         </div>
         <p style="text-align: center; color: rgba(255,255,255,0.08); font-size: 0.6rem; margin-top: 1.5rem; letter-spacing: 0.5px;">
             © 2026 ZINARA Online Self-Service System
         </p>
     </div>
     <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
 </body>
 </html>

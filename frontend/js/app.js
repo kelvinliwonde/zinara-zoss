@@ -4,7 +4,7 @@
 
 const APP = {
     // ── Your live Render URL ──────────────────────────────────
-    BASE_URL: 'https://zinaraz-zoss.onrender.com',
+    BASE_URL: 'https://zinara-zoss.onrender.com',
 
     get token()  { return localStorage.getItem('zoss_token'); },
     set token(v) { v ? localStorage.setItem('zoss_token', v) : localStorage.removeItem('zoss_token'); },

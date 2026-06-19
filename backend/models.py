@@ -25,7 +25,7 @@ class User(db.Model):
 
     vehicles       = db.relationship('Vehicle',      backref='owner', lazy=True)
     radio_licenses = db.relationship('RadioLicense', backref='owner', lazy=True)
-    applications   = db.relationship('Application',  backref='user',  lazy=True)
+    applications   = db.relationship('Application',  backref='user',  lazy=True, foreign_keys='Application.user_id')
 
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')

@@ -1,280 +1,139 @@
 // ============================================================
-// ZINARA ZOSS - Main Application (app.js)
-// Complete with Integration API Methods & Admin Controls
+// ZINARA ZOSS — frontend/js/app.js
 // ============================================================
 
-// ---------- APP STATE ----------
 const APP = {
-    user: null,
-    token: localStorage.getItem('access_token'),
-    refreshToken: localStorage.getItem('refresh_token'),
-    apiBase: 'http://127.0.0.1:5000/api'
+    // ── Your live Render URL ──────────────────────────────────
+    BASE_URL: 'https://zinaraz-zoss.onrender.com',
+
+    get token()  { return localStorage.getItem('zoss_token'); },
+    set token(v) { v ? localStorage.setItem('zoss_token', v) : localStorage.removeItem('zoss_token'); },
+
+    get user() {
+        const raw = localStorage.getItem('zoss_user');
+        try { return raw ? JSON.parse(raw) : null; } catch { return null; }
+    },
+    set user(v) {
+        v ? localStorage.setItem('zoss_user', JSON.stringify(v))
+          : localStorage.removeItem('zoss_user');
+    },
 };
 
-// ---------- API WRAPPER ----------
-const API = {
-    async request(method, endpoint, data = null, auth = true) {
-        const url = `${APP.apiBase}${endpoint}`;
-        const headers = {
-            'Content-Type': 'application/json',
-        };
-        
-        if (auth && APP.token) {
-            headers['Authorization'] = `Bearer ${APP.token}`;
-        }
-        
-        const options = {
-            method,
-            headers,
-            body: data ? JSON.stringify(data) : null
-        };
-        
-        try {
-            const response = await fetch(url, options);
-            const result = await response.json();
-            
-            if (response.status === 401) {
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                localStorage.removeItem('user');
-                APP.token = null;
-                APP.user = null;
-                window.location.href = '/login.html';
-                throw new Error('Session expired. Please login again.');
-            }
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'An error occurred');
-            }
-            
-            return result;
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
+// ── Demo data (used when backend returns nothing / not logged in yet) ─
+const DEMO = {
+    user: {
+        id: 'u001', name: 'Anesu Mhaka',
+        email: 'anesu.mhaka1@gmail.com',
+        role: 'admin', initials: 'AM',
     },
-    
-    // ---------- AUTH ENDPOINTS ----------
-    async login(email, password) {
-        const result = await this.request('POST', '/auth/login', { email, password }, false);
-        if (result.access_token) {
-            APP.token = result.access_token;
-            APP.refreshToken = result.refresh_token;
-            APP.user = result.user;
-            localStorage.setItem('access_token', result.access_token);
-            localStorage.setItem('refresh_token', result.refresh_token);
-            localStorage.setItem('user', JSON.stringify(result.user));
-        }
-        return result;
-    },
-    
-    async register(data) {
-        return this.request('POST', '/auth/register', data, false);
-    },
-    
-    async logout() {
-        try {
-            await this.request('POST', '/auth/logout');
-        } catch {}
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
-        APP.token = null;
-        APP.refreshToken = null;
-        APP.user = null;
-        window.location.href = '/login.html';
-    },
-    
-    async refreshToken() {
-        try {
-            const response = await fetch(`${APP.apiBase}/auth/refresh`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${APP.refreshToken}`
-                }
-            });
-            const result = await response.json();
-            if (response.ok && result.access_token) {
-                APP.token = result.access_token;
-                localStorage.setItem('access_token', result.access_token);
-                return true;
-            }
-            return false;
-        } catch {
-            return false;
-        }
-    },
-    
-    // ---------- USER ENDPOINTS ----------
-    async getProfile() {
-        return this.request('GET', '/user/profile');
-    },
-    
-    async getVehicles() {
-        return this.request('GET', '/user/vehicles');
-    },
-    
-    async addVehicle(data) {
-        return this.request('POST', '/user/vehicles', data);
-    },
-    
-    async getRadioLicenses() {
-        return this.request('GET', '/user/radio-licenses');
-    },
-    
-    async addRadioLicense(data) {
-        return this.request('POST', '/user/radio-licenses', data);
-    },
-    
-    // ---------- RENEWAL ENDPOINTS ----------
-    async applyRenewal(data) {
-        return this.request('POST', '/renewal/apply', data);
-    },
-    
-    async getApplications() {
-        return this.request('GET', '/renewal/applications');
-    },
-    
-    async calculateFees(data) {
-        return this.request('POST', '/renewal/calculate-fees', data);
-    },
+    vehicles: [
+        { registration: 'ABC 1234', make: 'Toyota', model: 'Hilux', year: 2020, color: 'White',  status: 'active'  },
+        { registration: 'XYZ 5678', make: 'Honda',  model: 'Fit',   year: 2018, color: 'Silver', status: 'expired' },
+    ],
+    applications: [
+        { id: 'APP-001', user: 'Anesu Mhaka',    type: 'Vehicle', amount: 50, status: 'pending',   date: '2026-06-18' },
+        { id: 'APP-002', user: 'Tendai Moyo',    type: 'Radio',   amount: 20, status: 'verified',  date: '2026-06-17' },
+        { id: 'APP-003', user: 'Rudo Chikwanda', type: 'Both',    amount: 70, status: 'paid',      date: '2026-06-15' },
+        { id: 'APP-004', user: 'Farai Dube',     type: 'Vehicle', amount: 50, status: 'completed', date: '2026-06-10' },
+        { id: 'APP-005', user: 'Nyasha Banda',   type: 'Radio',   amount: 20, status: 'rejected',  date: '2026-06-08' },
+    ],
+    spending: { labels: ['Jan','Feb','Mar','Apr','May','Jun'], data: [0,50,50,0,70,0] },
+};
 
-    // ---------- INTEGRATION ENDPOINTS (Admin Only) ----------
-    async verifyVehicle(registration_number) {
-        return this.request('POST', '/integration/verify-vehicle', { registration_number });
-    },
-
-    async verifyRadio(radio_serial_number) {
-        return this.request('POST', '/integration/verify-radio', { radio_serial_number });
-    },
-
-    async submitToZinara(application_id) {
-        return this.request('POST', '/integration/submit-application', { application_id });
-    },
-
-    async checkZinaraStatus(reference_number) {
-        return this.request('GET', `/integration/check-status/${reference_number}`);
-    },
-
-    async processZinaraPayment(application_id, payment_method = 'ecocash') {
-        return this.request('POST', '/integration/process-payment', { 
-            application_id, 
-            payment_method 
+// ── API helpers ───────────────────────────────────────────────
+async function apiGet(path) {
+    try {
+        const res = await fetch(APP.BASE_URL + path, {
+            headers: { 'Authorization': 'Bearer ' + APP.token }
         });
-    },
-
-    async getSystemStatus() {
-        return this.request('GET', '/integration/system-status');
-    },
-
-    async generateLicense(application_id) {
-        return this.request('POST', `/integration/generate-license/${application_id}`);
+        if (res.status === 401) { handleLogout(); return null; }
+        if (!res.ok) throw new Error(res.statusText);
+        return res.json();
+    } catch (e) {
+        console.warn('API GET failed, using demo data.', path, e);
+        return null;
     }
-};
+}
 
-// ---------- TOAST NOTIFICATIONS ----------
-function showToast(message, type = 'success') {
-    const types = {
-        success: 'toast-success',
-        error: 'toast-error',
-        warning: 'toast-warning',
-        info: 'toast-info'
+async function apiPost(path, body) {
+    try {
+        const res = await fetch(APP.BASE_URL + path, {
+            method: 'POST',
+            headers: {
+                'Content-Type':  'application/json',
+                'Authorization': 'Bearer ' + APP.token,
+            },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw { status: res.status, ...data };
+        return data;
+    } catch (e) {
+        console.error('API POST failed.', path, e);
+        throw e;
+    }
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function showToast(message, type = 'info') {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const icons = {
+        success: '<i class="fas fa-check-circle" style="color:var(--green)"></i>',
+        error:   '<i class="fas fa-times-circle" style="color:#ef4444"></i>',
+        warning: '<i class="fas fa-exclamation-triangle" style="color:var(--gold)"></i>',
+        info:    '<i class="fas fa-info-circle" style="color:var(--blue)"></i>',
     };
-    
-    const existingToasts = document.querySelectorAll('.toast');
-    existingToasts.forEach(toast => toast.remove());
-    
     const toast = document.createElement('div');
-    toast.className = `toast ${types[type] || 'toast-info'}`;
-    toast.innerHTML = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.remove();
-        }
-    }, 4500);
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `${icons[type] || icons.info} <span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4600);
 }
 
-// ---------- FORMAT HELPERS ----------
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-ZW', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
+// ── Auth ──────────────────────────────────────────────────────
+function handleLogout() {
+    APP.token = null;
+    APP.user  = null;
+    window.location.href = '/login.html';
 }
 
-function formatCurrency(amount) {
-    return `$${Number(amount).toFixed(2)}`;
-}
-
-function getStatusBadge(status) {
-    const classes = {
-        'pending': 'badge-pending',
-        'verified': 'badge-verified',
-        'paid': 'badge-paid',
-        'completed': 'badge-completed',
-        'rejected': 'badge-rejected'
+// ── Status badge ──────────────────────────────────────────────
+function statusBadge(status) {
+    const map = {
+        pending:   'badge-pending',
+        verified:  'badge-verified',
+        paid:      'badge-paid',
+        completed: 'badge-completed',
+        rejected:  'badge-rejected',
+        active:    'badge-paid',
+        expired:   'badge-rejected',
     };
-    return `<span class="badge ${classes[status] || 'badge-pending'}">${status.toUpperCase()}</span>`;
+    return `<span class="badge ${map[status] || 'badge-pending'}">${status}</span>`;
 }
 
-// ---------- CHECK AUTH ON PAGE LOAD ----------
-document.addEventListener('DOMContentLoaded', function() {
-    // Skip auth check for login and register pages
-    if (window.location.pathname.includes('login') || 
-        window.location.pathname.includes('register')) {
-        return;
-    }
-    
-    // Check if user is logged in
-    if (!APP.token) {
-        window.location.href = '/login.html';
-        return;
-    }
-    
-    // Load user data from localStorage
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-        APP.user = JSON.parse(storedUser);
-    }
-    
-    // Show admin-only links if user is admin
-    if (APP.user && (APP.user.role === 'admin' || APP.user.role === 'super_admin')) {
-        // Show Admin link
-        const adminLink = document.getElementById('adminLink');
-        if (adminLink) {
-            adminLink.style.display = 'inline';
-        }
-        // Show Integration link (admin only)
-        const integrationLink = document.getElementById('integrationLink');
-        if (integrationLink) {
-            integrationLink.style.display = 'inline';
-        }
-    } else {
-        // Hide Integration link for regular users
-        const integrationLink = document.getElementById('integrationLink');
-        if (integrationLink) {
-            integrationLink.style.display = 'none';
-        }
+// ── Sidebar role UI ───────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const user = APP.user;
+    if (!user) return;
+
+    const setEl   = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+
+    setEl('userName',      user.name);
+    setEl('userNameShort', user.name);
+    setEl('userEmail',     user.email);
+    setEl('userRole',      (user.role || '').replace('_', ' '));
+    setEl('userAvatar',    user.initials || (user.name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase());
+
+    if (user.role === 'admin' || user.role === 'super_admin') {
+        ['adminLabel', 'integrationLink', 'adminLink'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = '';
+        });
     }
 });
-
-// ---------- LOGOUT FUNCTION ----------
-function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        API.logout();
-    }
-}
-
-// ---------- EXPOSE TO GLOBAL SCOPE ----------
-window.APP = APP;
-window.API = API;
-window.showToast = showToast;
-window.formatDate = formatDate;
-window.formatCurrency = formatCurrency;
-window.getStatusBadge = getStatusBadge;
-window.handleLogout = handleLogout;

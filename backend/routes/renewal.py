@@ -1,131 +1,151 @@
+"""
+ZINARA ZOSS — backend/routes/renewal.py
+Handles /api/renewal/...
+"""
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.models import db, Vehicle, RadioLicense, RenewalApplication
-from datetime import datetime
+from backend.models import db, User, Vehicle, Application
 
 renewal_bp = Blueprint('renewal', __name__)
 
-@renewal_bp.route('/apply', methods=['POST'])
-@jwt_required()
-def apply_renewal():
-    user_id = int(get_jwt_identity())
-    data = request.get_json()
-    
-    if 'application_type' not in data:
-        return jsonify({'error': 'application_type is required'}), 400
-    
-    app_type = data['application_type']
-    if app_type not in ['vehicle', 'radio', 'both']:
-        return jsonify({'error': 'Invalid application_type. Must be vehicle, radio, or both'}), 400
-    
-    vehicle_id = data.get('vehicle_id')
-    radio_license_id = data.get('radio_license_id')
-    
-    if app_type in ['vehicle', 'both'] and not vehicle_id:
-        return jsonify({'error': 'vehicle_id is required for vehicle renewal'}), 400
-    
-    if app_type in ['radio', 'both'] and not radio_license_id:
-        return jsonify({'error': 'radio_license_id is required for radio renewal'}), 400
-    
-    fee_amount = 0.00
-    penalty_fee = 0.00
-    
-    if vehicle_id:
-        vehicle = Vehicle.query.filter_by(id=vehicle_id, user_id=user_id).first()
-        if not vehicle:
-            return jsonify({'error': 'Vehicle not found'}), 404
-        fee_amount += vehicle.calculate_fee()
-        penalty_fee += vehicle.calculate_penalty()
-    
-    if radio_license_id:
-        radio = RadioLicense.query.filter_by(id=radio_license_id, user_id=user_id).first()
-        if not radio:
-            return jsonify({'error': 'Radio license not found'}), 404
-        fee_amount += radio.calculate_fee()
-        penalty_fee += radio.calculate_penalty()
-    
-    total_amount = fee_amount + penalty_fee
-    
-    try:
-        application = RenewalApplication(
-            user_id=user_id,
-            vehicle_id=vehicle_id,
-            radio_license_id=radio_license_id,
-            application_type=app_type,
-            status='pending',
-            fee_amount=fee_amount,
-            penalty_fee=penalty_fee,
-            total_amount=total_amount,
-            notes=f"Renewal for {app_type} license"
-        )
-        db.session.add(application)
-        db.session.commit()
-        
-        return jsonify({
-            'message': 'Renewal application created successfully',
-            'application': application.to_dict()
-        }), 201
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+# Fee schedule (USD)
+FEES = {
+    'vehicle': 50.00,
+    'radio':   20.00,
+    'both':    70.00,
+}
 
-@renewal_bp.route('/applications', methods=['GET'])
-@jwt_required()
-def get_applications():
-    user_id = int(get_jwt_identity())
-    
-    applications = RenewalApplication.query.filter_by(user_id=user_id).order_by(
-        RenewalApplication.application_date.desc()
-    ).all()
-    
-    return jsonify({
-        'applications': [app.to_dict() for app in applications]
-    }), 200
 
-@renewal_bp.route('/applications/<int:application_id>', methods=['GET'])
+@renewal_bp.route('/submit', methods=['POST'])
 @jwt_required()
-def get_application(application_id):
+def submit_renewal():
     user_id = int(get_jwt_identity())
-    
-    application = RenewalApplication.query.filter_by(id=application_id, user_id=user_id).first()
-    
-    if not application:
-        return jsonify({'error': 'Application not found'}), 404
-    
-    return jsonify({
-        'application': application.to_dict()
-    }), 200
+    data    = request.get_json() or {}
 
-@renewal_bp.route('/calculate-fees', methods=['POST'])
-@jwt_required()
-def calculate_fees():
-    user_id = int(get_jwt_identity())
-    data = request.get_json()
-    
-    vehicle_id = data.get('vehicle_id')
-    radio_license_id = data.get('radio_license_id')
-    
-    fee_amount = 0.00
-    penalty_fee = 0.00
-    
-    if vehicle_id:
-        vehicle = Vehicle.query.filter_by(id=vehicle_id, user_id=user_id).first()
-        if vehicle:
-            fee_amount += vehicle.calculate_fee()
-            penalty_fee += vehicle.calculate_penalty()
-    
-    if radio_license_id:
-        radio = RadioLicense.query.filter_by(id=radio_license_id, user_id=user_id).first()
-        if radio:
-            fee_amount += radio.calculate_fee()
-            penalty_fee += radio.calculate_penalty()
-    
-    total_amount = fee_amount + penalty_fee
-    
+    renewal_type = (data.get('type') or '').lower()
+    if renewal_type not in FEES:
+        return jsonify({'error': 'type must be vehicle, radio, or both'}), 400
+
+    vehicle_id = None
+    if renewal_type in ('vehicle', 'both'):
+        vehicle_id = data.get('vehicle_id')
+        if vehicle_id:
+            vehicle = Vehicle.query.filter_by(id=vehicle_id, user_id=user_id).first()
+            if not vehicle:
+                return jsonify({'error': 'Vehicle not found or not owned by you'}), 404
+
+    application = Application(
+        user_id    = user_id,
+        vehicle_id = vehicle_id,
+        type       = renewal_type,
+        amount     = FEES[renewal_type],
+        status     = 'pending',
+        notes      = data.get('notes', ''),
+    )
+    db.session.add(application)
+    db.session.commit()
+
     return jsonify({
-        'fee_amount': round(fee_amount, 2),
-        'penalty_fee': round(penalty_fee, 2),
-        'total_amount': round(total_amount, 2),
-        'currency': 'USD'
-    }), 200
+        'message':     'Renewal submitted successfully',
+        'application': application.to_dict(),
+    }), 201
+
+
+@renewal_bp.route('/fees', methods=['GET'])
+def get_fees():
+    return jsonify({'fees': FEES})
+
+
+@renewal_bp.route('/<int:app_id>', methods=['GET'])
+@jwt_required()
+def get_application(app_id):
+    user_id = int(get_jwt_identity())
+    app     = Application.query.get_or_404(app_id)
+
+    user = User.query.get(user_id)
+    if app.user_id != user_id and user.role not in ('admin', 'super_admin'):
+        return jsonify({'error': 'Access denied'}), 403
+
+    return jsonify({'application': app.to_dict()})
+
+
+# ── Admin actions ─────────────────────────────────────────────
+def _require_admin():
+    user = User.query.get(int(get_jwt_identity()))
+    if not user or user.role not in ('admin', 'super_admin'):
+        return None, jsonify({'error': 'Admin access required'}), 403
+    return user, None, None
+
+
+@renewal_bp.route('/admin/all', methods=['GET'])
+@jwt_required()
+def admin_all_applications():
+    user = User.query.get_or_404(int(get_jwt_identity()))
+    if user.role not in ('admin', 'super_admin'):
+        return jsonify({'error': 'Admin access required'}), 403
+
+    status = request.args.get('status')
+    query  = Application.query
+    if status:
+        query = query.filter_by(status=status)
+
+    apps = query.order_by(Application.created_at.desc()).all()
+    return jsonify({'applications': [a.to_dict() for a in apps]})
+
+
+@renewal_bp.route('/admin/<int:app_id>/approve', methods=['POST'])
+@jwt_required()
+def approve_application(app_id):
+    admin = User.query.get_or_404(int(get_jwt_identity()))
+    if admin.role not in ('admin', 'super_admin'):
+        return jsonify({'error': 'Admin access required'}), 403
+
+    app = Application.query.get_or_404(app_id)
+    if app.status != 'pending':
+        return jsonify({'error': f'Cannot approve an application with status: {app.status}'}), 400
+
+    app.status      = 'verified'
+    app.reviewed_by = admin.id
+    db.session.commit()
+
+    return jsonify({'message': 'Application approved', 'application': app.to_dict()})
+
+
+@renewal_bp.route('/admin/<int:app_id>/reject', methods=['POST'])
+@jwt_required()
+def reject_application(app_id):
+    admin = User.query.get_or_404(int(get_jwt_identity()))
+    if admin.role not in ('admin', 'super_admin'):
+        return jsonify({'error': 'Admin access required'}), 403
+
+    app  = Application.query.get_or_404(app_id)
+    data = request.get_json() or {}
+
+    app.status      = 'rejected'
+    app.reviewed_by = admin.id
+    app.notes       = data.get('reason', app.notes)
+    db.session.commit()
+
+    return jsonify({'message': 'Application rejected', 'application': app.to_dict()})
+
+
+@renewal_bp.route('/admin/stats', methods=['GET'])
+@jwt_required()
+def admin_stats():
+    admin = User.query.get_or_404(int(get_jwt_identity()))
+    if admin.role not in ('admin', 'super_admin'):
+        return jsonify({'error': 'Admin access required'}), 403
+
+    all_apps = Application.query.all()
+    revenue  = sum(a.amount for a in all_apps if a.status in ('paid', 'completed'))
+
+    return jsonify({
+        'total':     len(all_apps),
+        'pending':   sum(1 for a in all_apps if a.status == 'pending'),
+        'verified':  sum(1 for a in all_apps if a.status == 'verified'),
+        'paid':      sum(1 for a in all_apps if a.status == 'paid'),
+        'completed': sum(1 for a in all_apps if a.status == 'completed'),
+        'rejected':  sum(1 for a in all_apps if a.status == 'rejected'),
+        'revenue':   round(revenue, 2),
+    })

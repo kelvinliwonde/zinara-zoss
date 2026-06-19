@@ -1,103 +1,97 @@
+"""
+ZINARA ZOSS — backend/routes/auth.py
+Handles /api/auth/register, /api/auth/login, /api/auth/me
+"""
+
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token, jwt_required, get_jwt_identity
+)
 from backend.models import db, User
-from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    
-    required_fields = ['national_id', 'full_name', 'email', 'phone', 'password', 'confirm_password']
-    for field in required_fields:
-        if field not in data:
-            return jsonify({'error': f'{field} is required'}), 400
-    
-    if data['password'] != data['confirm_password']:
-        return jsonify({'error': 'Passwords do not match'}), 400
-    
-    if User.query.filter_by(email=data['email'].lower()).first():
+    data = request.get_json() or {}
+
+    required = ['name', 'email', 'password']
+    missing  = [f for f in required if not data.get(f)]
+    if missing:
+        return jsonify({'error': f'Missing fields: {", ".join(missing)}'}), 400
+
+    if User.query.filter_by(email=data['email']).first():
         return jsonify({'error': 'Email already registered'}), 409
-    
-    try:
-        user = User(
-            national_id=data['national_id'],
-            full_name=data['full_name'],
-            email=data['email'],
-            phone=data['phone'],
-            password=data['password']
-        )
-        db.session.add(user)
-        db.session.commit()
-        
-        access_token = create_access_token(identity=str(user.id), additional_claims={
-            'role': user.role,
-            'name': user.full_name
-        })
-        refresh_token = create_refresh_token(identity=str(user.id))
-        
-        return jsonify({
-            'message': 'Registration successful',
-            'user': user.to_dict(),
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        }), 201
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+
+    user = User(
+        name      = data['name'].strip(),
+        email     = data['email'].strip().lower(),
+        id_number = data.get('id_number', '').strip() or None,
+        phone     = data.get('phone', '').strip() or None,
+        role      = 'citizen',
+    )
+    user.set_password(data['password'])
+
+    db.session.add(user)
+    db.session.commit()
+
+    token = create_access_token(identity=str(user.id))
+    return jsonify({
+        'message': 'Registration successful',
+        'token':   token,
+        'user':    user.to_dict(),
+    }), 201
+
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    
-    if not data.get('email') or not data.get('password'):
+    data = request.get_json() or {}
+
+    email    = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+
+    if not email or not password:
         return jsonify({'error': 'Email and password are required'}), 400
-    
-    user = User.query.filter_by(email=data['email'].lower()).first()
-    
-    if not user:
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.check_password(password):
         return jsonify({'error': 'Invalid email or password'}), 401
-    
-    if not user.check_password(data['password']):
-        return jsonify({'error': 'Invalid email or password'}), 401
-    
-    user.last_login = datetime.utcnow()
-    db.session.commit()
-    
-    access_token = create_access_token(identity=str(user.id), additional_claims={
-        'role': user.role,
-        'name': user.full_name
-    })
-    refresh_token = create_refresh_token(identity=str(user.id))
-    
+
+    if not user.is_active:
+        return jsonify({'error': 'Account is disabled'}), 403
+
+    token = create_access_token(identity=str(user.id))
     return jsonify({
         'message': 'Login successful',
-        'user': user.to_dict(),
-        'access_token': access_token,
-        'refresh_token': refresh_token
-    }), 200
-
-@auth_bp.route('/refresh', methods=['POST'])
-@jwt_required(refresh=True)
-def refresh():
-    user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
-    
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-    
-    access_token = create_access_token(identity=str(user.id), additional_claims={
-        'role': user.role,
-        'name': user.full_name
+        'token':   token,
+        'user':    user.to_dict(),
     })
-    
-    return jsonify({
-        'access_token': access_token
-    }), 200
 
-@auth_bp.route('/logout', methods=['POST'])
+
+@auth_bp.route('/me', methods=['GET'])
 @jwt_required()
-def logout():
-    return jsonify({'message': 'Logout successful'}), 200
+def get_me():
+    user_id = int(get_jwt_identity())
+    user    = User.query.get_or_404(user_id)
+    return jsonify({'user': user.to_dict()})
+
+
+@auth_bp.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    user_id      = int(get_jwt_identity())
+    user         = User.query.get_or_404(user_id)
+    data         = request.get_json() or {}
+    old_password = data.get('old_password', '')
+    new_password = data.get('new_password', '')
+
+    if not user.check_password(old_password):
+        return jsonify({'error': 'Current password is incorrect'}), 400
+
+    if len(new_password) < 6:
+        return jsonify({'error': 'New password must be at least 6 characters'}), 400
+
+    user.set_password(new_password)
+    db.session.commit()
+    return jsonify({'message': 'Password changed successfully'})

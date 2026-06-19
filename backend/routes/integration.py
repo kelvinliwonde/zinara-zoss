@@ -1,180 +1,52 @@
+"""
+ZINARA ZOSS — backend/routes/integration.py
+Handles /api/integration/...  (ZINARA system lookups)
+"""
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.models import db, User, Vehicle, RadioLicense, RenewalApplication, Payment
-from backend.services.zinara_integration import ZINARAIntegration
-from datetime import datetime
-import json
+from backend.models import User
+from backend.services.zinara_integration import ZinaraIntegrationService
 
 integration_bp = Blueprint('integration', __name__)
+zinara_service = ZinaraIntegrationService()
 
-@integration_bp.route('/verify-vehicle', methods=['POST'])
+
+@integration_bp.route('/lookup/vehicle', methods=['POST'])
 @jwt_required()
-def verify_vehicle():
-    data = request.get_json()
-    registration_number = data.get('registration_number')
-    
-    if not registration_number:
+def lookup_vehicle():
+    data = request.get_json() or {}
+    registration = (data.get('registration') or '').strip().upper()
+
+    if not registration:
         return jsonify({'error': 'Registration number is required'}), 400
-    
-    result = ZINARAIntegration.check_vehicle_status(registration_number)
-    return jsonify(result), 200 if result['success'] else 404
 
-@integration_bp.route('/verify-radio', methods=['POST'])
-@jwt_required()
-def verify_radio():
-    data = request.get_json()
-    radio_serial = data.get('radio_serial_number')
-    
-    if not radio_serial:
-        return jsonify({'error': 'Radio serial number is required'}), 400
-    
-    result = ZINARAIntegration.check_radio_license(radio_serial)
-    return jsonify(result), 200 if result['success'] else 404
+    result = zinara_service.lookup_vehicle(registration)
+    if result.get('error'):
+        return jsonify({'error': result['error']}), 404
 
-@integration_bp.route('/submit-application', methods=['POST'])
-@jwt_required()
-def submit_to_zinara():
-    user_id = int(get_jwt_identity())
-    data = request.get_json()
-    
-    application_id = data.get('application_id')
-    if not application_id:
-        return jsonify({'error': 'Application ID is required'}), 400
-    
-    application = RenewalApplication.query.get(application_id)
-    if not application:
-        return jsonify({'error': 'Application not found'}), 404
-    
-    user = User.query.get(user_id)
-    vehicle = Vehicle.query.get(application.vehicle_id) if application.vehicle_id else None
-    radio = RadioLicense.query.get(application.radio_license_id) if application.radio_license_id else None
-    
-    application_data = {
-        'application_id': application.id,
-        'user': {
-            'full_name': user.full_name,
-            'national_id': user.national_id,
-            'email': user.email,
-            'phone': user.phone
-        },
-        'vehicle': vehicle.to_dict() if vehicle else None,
-        'radio': radio.to_dict() if radio else None,
-        'application_type': application.application_type,
-        'fee_amount': float(application.fee_amount),
-        'penalty_fee': float(application.penalty_fee),
-        'total_amount': float(application.total_amount)
-    }
-    
-    result = ZINARAIntegration.submit_application(application_data)
-    
-    if result['success']:
-        application.status = 'verified'
-        application.verification_date = datetime.utcnow()
-        application.notes = f"Submitted to ZINARA. Reference: {result.get('reference_number', 'N/A')}"
-        db.session.commit()
-    
-    return jsonify(result), 200
+    return jsonify({'vehicle': result})
 
-@integration_bp.route('/check-status/<reference_number>', methods=['GET'])
-@jwt_required()
-def check_application_status(reference_number):
-    result = ZINARAIntegration.check_application_status(reference_number)
-    return jsonify(result), 200
 
-@integration_bp.route('/process-payment', methods=['POST'])
+@integration_bp.route('/lookup/radio', methods=['POST'])
 @jwt_required()
-def process_zinara_payment():
-    user_id = int(get_jwt_identity())
-    data = request.get_json()
-    
-    application_id = data.get('application_id')
-    payment_method = data.get('payment_method', 'ecocash')
-    
-    if not application_id:
-        return jsonify({'error': 'Application ID is required'}), 400
-    
-    application = RenewalApplication.query.get(application_id)
-    if not application:
-        return jsonify({'error': 'Application not found'}), 404
-    
-    result = ZINARAIntegration.process_payment(
-        application_id,
-        float(application.total_amount),
-        payment_method
-    )
-    
-    if result['success']:
-        payment = Payment(
-            application_id=application.id,
-            user_id=user_id,
-            payment_method=payment_method,
-            payment_reference=result['payment_reference'],
-            amount=application.total_amount,
-            status='completed',
-            transaction_id=result['transaction_id'],
-            payment_date=datetime.utcnow(),
-            gateway_response=json.dumps(result)
-        )
-        db.session.add(payment)
-        
-        application.status = 'paid'
-        application.payment_date = datetime.utcnow()
-        db.session.commit()
-        
-        user = User.query.get(user_id)
-        vehicle = Vehicle.query.get(application.vehicle_id)
-        
-        license_result = ZINARAIntegration.generate_digital_license(
-            application.id,
-            user.to_dict(),
-            vehicle.to_dict() if vehicle else {'registration_number': 'N/A'}
-        )
-        
-        if license_result['success']:
-            application.status = 'completed'
-            application.completion_date = datetime.utcnow()
-            application.qr_code = license_result['qr_code_data']
-            application.digital_license_path = license_result['digital_download_url']
-            db.session.commit()
-            
-            return jsonify({
-                'message': 'Payment processed and license issued successfully!',
-                'payment': result,
-                'license': license_result
-            }), 200
-    
-    return jsonify(result), 400 if not result['success'] else 200
+def lookup_radio():
+    data      = request.get_json() or {}
+    license_number = (data.get('license_number') or '').strip()
 
-@integration_bp.route('/system-status', methods=['GET'])
-@jwt_required()
-def get_system_status():
-    result = ZINARAIntegration.get_real_time_data()
-    return jsonify(result), 200
+    if not license_number:
+        return jsonify({'error': 'Radio license number is required'}), 400
 
-@integration_bp.route('/generate-license/<int:application_id>', methods=['POST'])
+    result = zinara_service.lookup_radio_license(license_number)
+    if result.get('error'):
+        return jsonify({'error': result['error']}), 404
+
+    return jsonify({'license': result})
+
+
+@integration_bp.route('/status', methods=['GET'])
 @jwt_required()
-def generate_digital_license(application_id):
-    user_id = int(get_jwt_identity())
-    
-    application = RenewalApplication.query.get(application_id)
-    if not application:
-        return jsonify({'error': 'Application not found'}), 404
-    
-    if application.status != 'completed':
-        return jsonify({'error': 'Application must be completed first'}), 400
-    
-    user = User.query.get(user_id)
-    vehicle = Vehicle.query.get(application.vehicle_id)
-    
-    result = ZINARAIntegration.generate_digital_license(
-        application.id,
-        user.to_dict(),
-        vehicle.to_dict() if vehicle else {'registration_number': 'N/A'}
-    )
-    
-    if result['success']:
-        application.qr_code = result['qr_code_data']
-        application.digital_license_path = result['digital_download_url']
-        db.session.commit()
-    
-    return jsonify(result), 200 if result['success'] else 400
+def integration_status():
+    """Check if the ZINARA integration service is reachable."""
+    status = zinara_service.health_check()
+    return jsonify({'integration': status})

@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: zinaraz-zoss
+    name: zinara-zoss
     runtime: python
-    buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn backend.app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
+      - key: FLASK_ENV
+        value: production
       - key: SECRET_KEY
         generateValue: true
       - key: JWT_SECRET_KEY
@@ -15,3 +15,7 @@ services:
         fromDatabase:
           name: zinara-db
           property: connectionString
+
+databases:
+  - name: zinara-db
+    plan: free
